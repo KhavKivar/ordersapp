@@ -1,0 +1,17 @@
+<xml>
+<task>Clasifica la intención del usuario en exactamente una etiqueta: list_prices, place_order, not_related. Responde solo con la etiqueta.</task>
+<examples country="Chile">
+  <example>
+    <user>Tienen los precios de los whiskys?</user>
+    <label>list_prices</label>
+  </example>
+  <example>
+    <user>Quiero hacer un pedido de 2 botellas de Jameson</user>
+    <label>place_order</label>
+  </example>
+  <example>
+    <user>Hola, cómo estás?</user>
+    <label>not_related</label>
+  </example>
+</examples>
+</xml>
