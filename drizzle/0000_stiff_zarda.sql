@@ -3,7 +3,8 @@ CREATE TABLE "clients" (
 	"name" varchar(255),
 	"localName" varchar(255),
 	"address" varchar(512),
-	"phone" varchar(20)
+	"phone" varchar(20),
+	CONSTRAINT "clients_phone_unique" UNIQUE("phone")
 );
 --> statement-breakpoint
 CREATE TABLE "orders" (

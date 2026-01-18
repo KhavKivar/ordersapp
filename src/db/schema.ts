@@ -27,5 +27,5 @@ export const clientTable = pgTable("clients", {
   name: varchar({ length: 255 }),
   localName: varchar({ length: 255 }), 
   address: varchar({ length: 512 }),
-  phone: varchar({ length: 20 })
+  phone: varchar({ length: 20 }).unique()
 });
