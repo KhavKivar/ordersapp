@@ -39,7 +39,7 @@ export async function startWhatsApp(): Promise<void> {
   sock.ev.on("messages.upsert", async ({ messages }) => {
     const msg = messages[0];
     if (!msg.message || msg.key.fromMe) return;
-
+   
     const remoteJid = msg.key.remoteJid;
     if (!remoteJid || remoteJid.endsWith("@g.us")) return;
 
@@ -52,7 +52,7 @@ export async function startWhatsApp(): Promise<void> {
 
     console.log(`New message from ${remoteJid}:`, text);
     await sock.sendPresenceUpdate("composing", remoteJid);
-    const iaResponse = await runAiIntent(text);
+    const iaResponse = await runAiIntent(text, remoteJid);
     await sock.sendPresenceUpdate("paused", remoteJid);
 
     await sock.sendMessage(remoteJid, { text: iaResponse });

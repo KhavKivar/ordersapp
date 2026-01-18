@@ -1,9 +1,14 @@
 import { HumanMessage } from "@langchain/core/messages";
 import { graph } from "../ai/graph/index.js";
 
-export async function runAiIntent(message: string) {
+export async function runAiIntent(message: string, sender: string) {
   const respond = await graph.invoke({
-    messages: [new HumanMessage(message)],
+    messages: [
+      new HumanMessage({
+        content: message,
+        additional_kwargs: { sender },
+      }),
+    ],
   });
 
   const last = respond.messages[respond.messages.length - 1];

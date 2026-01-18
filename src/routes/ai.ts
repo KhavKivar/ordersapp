@@ -9,7 +9,7 @@ export async function aiRoutes(fastify: FastifyInstance) {
       return reply.status(400).send({ error: "message is required" });
     }
 
-    const text = await runAiIntent(message);
+    const text = await runAiIntent(message,"");
 
     return { message: text };
   });

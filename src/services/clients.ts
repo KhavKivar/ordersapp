@@ -6,6 +6,29 @@ export async function listClients() {
   return db.select().from(clientTable);
 }
 
+interface Client {
+  id: number;
+  name: string | null;
+  localName: string | null;
+  address: string | null;
+  phone: string | null;
+}
+export type OptionalClient = Client | null;
+
+
+export async function getClientByPhone(phone: string): Promise<OptionalClient>  {
+  const client = await db
+    .select()
+    .from(clientTable)
+    .where(eq(clientTable.phone, phone))
+    .limit(1);
+  if(client.length===0){
+    return null;
+  }
+  return client[0];
+}
+
+
 export async function createClient(input: {
   name: string;
   localName?: string;
