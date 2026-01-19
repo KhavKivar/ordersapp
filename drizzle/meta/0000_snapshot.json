@@ -79,14 +79,57 @@
             "cycle": false
           }
         },
-        "product_id": {
-          "name": "product_id",
+        "client_id": {
+          "name": "client_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "client_id": {
-          "name": "client_id",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.order_lines": {
+      "name": "order_lines",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "order_lines_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "order_id": {
+          "name": "order_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "product_id": {
+          "name": "product_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -103,13 +146,13 @@
           "primaryKey": false,
           "notNull": true
         },
-        "total_price": {
-          "name": "total_price",
+        "line_total": {
+          "name": "line_total",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "generated": {
-            "as": "\"orders\".\"price_per_unit\" * \"orders\".\"quantity\"",
+            "as": "\"order_lines\".\"price_per_unit\" * \"order_lines\".\"quantity\"",
             "type": "stored"
           }
         }

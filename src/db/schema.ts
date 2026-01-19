@@ -1,4 +1,4 @@
-import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { integer, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 import { SQL, sql } from "drizzle-orm/sql/sql";
 
 export const productsTable = pgTable("products", {
@@ -12,15 +12,22 @@ export const productsTable = pgTable("products", {
 });
 
 export const ordersTable = pgTable("orders", {
-    id: integer().primaryKey().generatedAlwaysAsIdentity(),
-    product_id: integer().notNull(),
-    client_id: integer().notNull(),
-    price_per_unit: integer().notNull(),
-    quantity: integer().notNull(),
-    total_price: integer().generatedAlwaysAs(
-       (): SQL => sql`${ordersTable.price_per_unit} * ${ordersTable.quantity}`
-    ),
-  });
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  client_id: integer().notNull(),
+  created_at: timestamp().defaultNow().notNull(),
+});
+
+export const orderLinesTable = pgTable("order_lines", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  order_id: integer().notNull(),
+  product_id: integer().notNull(),
+  price_per_unit: integer().notNull(),
+  quantity: integer().notNull(),
+  line_total: integer().generatedAlwaysAs(
+    (): SQL =>
+      sql`${orderLinesTable.price_per_unit} * ${orderLinesTable.quantity}`
+  ),
+});
 
 export const clientTable = pgTable("clients", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

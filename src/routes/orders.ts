@@ -13,31 +13,49 @@ export async function ordersRoutes(fastify: FastifyInstance) {
 
   fastify.post("/orders", async (request, reply) => {
     const body = request.body as {
-      product_id?: number;
       client_id?: number;
-      price_per_unit?: number;
-      quantity?: number;
+      items?: Array<{
+        product_id?: number;
+        price_per_unit?: number;
+        quantity?: number;
+      }>;
     };
 
-    const productId = body?.product_id;
     const clientId = body?.client_id;
-    const pricePerUnit = body?.price_per_unit;
-    const quantity = body?.quantity;
+    const items = body?.items ?? [];
 
-    if (!productId || !clientId || !pricePerUnit || !quantity) {
+    if (!clientId || items.length === 0) {
       return reply.status(400).send({
-        error: "product_id, client_id, price_per_unit, quantity are required",
+        error: "client_id and items are required",
+      });
+    }
+
+    const normalizedItems: Array<{
+      productId: number;
+      pricePerUnit: number;
+      quantity: number;
+    }> = [];
+    for (const item of items) {
+      if (!item.product_id || !item.price_per_unit || !item.quantity) {
+        return reply.status(400).send({
+          error:
+            "Each item needs product_id, price_per_unit, quantity with values greater than 0",
+        });
+      }
+
+      normalizedItems.push({
+        productId: item.product_id,
+        pricePerUnit: item.price_per_unit,
+        quantity: item.quantity,
       });
     }
 
     const created = await createOrder({
-      productId,
       clientId,
-      pricePerUnit,
-      quantity,
+      items: normalizedItems,
     });
 
-    return { order: created };
+    return created;
   });
 
   fastify.delete("/orders/:id", async (request, reply) => {
