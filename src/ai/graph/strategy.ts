@@ -1,7 +1,10 @@
 import { StateGraph, START, END } from "@langchain/langgraph";
 import { State } from "../state/schema.js";
-import { listPriceNode, makeOrderNode, registerClientNode, userIntentNode } from "../intents/classifier.js";
+
 import { toMessageText } from "../utils/message.js";
+
+import { listPriceNode, makeOrderNode, registerClientNode, userIntentNode } from "../intents/nodes/index.js";
+
 
 const conditionalEdge = (state: { messages: Array<{ content?: unknown }> }) => {
   const stateMessages = state.messages;
