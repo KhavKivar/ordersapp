@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Spinner } from "@/components/ui/spinner";
 
 type Product = {
   id: number;
@@ -141,41 +142,49 @@ export default function OrdersPage() {
     setQuantity("1");
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background text-foreground">
+        <div className="mx-auto flex min-h-screen w-full max-w-5xl items-center justify-center px-6">
+          <Spinner />
+        </div>
+      </div>
+    );
+  }
   if (hasError) return <div>Error loading data</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-rose-50 text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background text-foreground">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
         <header className="space-y-3">
           <a
-            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-amber-700 transition hover:text-amber-600"
+            className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-accent-foreground transition hover:text-foreground"
             href="/"
           >
             <span className="text-base">←</span>
             Volver
           </a>
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-700">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent-foreground">
             Crear pedido
           </p>
-          <h1 className="text-4xl font-semibold text-slate-900">
+          <h1 className="text-4xl font-semibold text-foreground">
             Nuevo pedido manual
           </h1>
-          <p className="max-w-2xl text-base text-slate-600">
+          <p className="max-w-2xl text-base text-muted-foreground">
             Selecciona el cliente y define los productos del pedido.
           </p>
         </header>
 
         <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-6">
-            <div className="rounded-3xl border border-amber-100 bg-white/90 p-8 shadow-[0_24px_80px_-60px_rgba(15,23,42,0.7)]">
+            <div className="rounded-3xl border border-border bg-card/90 p-8 shadow-lg">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">
+                <label className="text-sm font-semibold text-foreground">
                   Cliente
                 </label>
                 <div className="relative">
                   <input
-                    className={`w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100 ${
+                    className={`w-full rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 ${
                       clientLocked ? "pr-24" : ""
                     }`}
                     list="clients-list"
@@ -193,7 +202,7 @@ export default function OrdersPage() {
                   {clientLocked && (
                     <button
                       type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-card px-3 py-1 text-xs font-semibold text-muted-foreground shadow-sm"
                       onClick={() => {
                         setClientLocked(false);
                         setClientQuery("");
@@ -212,12 +221,12 @@ export default function OrdersPage() {
 
               <div className="mt-6 grid gap-4 md:grid-cols-[1.4fr_0.6fr_0.4fr]">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">
+                  <label className="text-sm font-semibold text-foreground">
                     Producto
                   </label>
                   <div className="relative">
                     <input
-                      className={`w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100 ${
+                      className={`w-full rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 ${
                         productLocked ? "pr-24" : ""
                       }`}
                       list="products-list"
@@ -238,7 +247,7 @@ export default function OrdersPage() {
                     {productLocked && (
                       <button
                         type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-card px-3 py-1 text-xs font-semibold text-muted-foreground shadow-sm"
                         onClick={() => {
                           setProductLocked(false);
                           setProductQuery("");
@@ -255,11 +264,11 @@ export default function OrdersPage() {
                   </datalist>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">
+                  <label className="text-sm font-semibold text-foreground">
                     Cantidad
                   </label>
                   <input
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100"
+                    className="w-full rounded-2xl border border-border bg-input px-4 py-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50"
                     min={1}
                     type="number"
                     value={quantity}
@@ -270,7 +279,7 @@ export default function OrdersPage() {
                 </div>
                 <div className="flex items-end">
                   <button
-                    className="w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    className="w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
                     type="button"
                     onClick={handleAddProduct}
                     disabled={!selectedProduct || normalizedQuantity < 1}
@@ -283,31 +292,31 @@ export default function OrdersPage() {
           </div>
 
           <aside className="space-y-6">
-            <div className="rounded-3xl border border-amber-100 bg-white/90 p-6">
-              <h2 className="text-lg font-semibold text-slate-900">
+            <div className="rounded-3xl border border-border bg-card/90 p-6 shadow-lg">
+              <h2 className="text-lg font-semibold text-foreground">
                 Resumen del pedido
               </h2>
               <div className="mt-4 space-y-3">
                 {orderLines.length === 0 ? (
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-muted-foreground">
                     Aun no hay productos agregados.
                   </p>
                 ) : (
                   orderLines.map((line) => (
                     <div
                       key={line.productId}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700"
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-muted px-4 py-3 text-sm text-muted-foreground"
                     >
                       <span>
                         {line.name} x {line.quantity}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-900">
+                        <span className="font-semibold text-foreground">
                           {formatCurrency(line.price * line.quantity)}
                         </span>
                         <button
                           type="button"
-                          className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600"
+                          className="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground"
                           onClick={() =>
                             setOrderLines((prev) =>
                               prev.filter(
@@ -323,14 +332,14 @@ export default function OrdersPage() {
                   ))
                 )}
               </div>
-              <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-4 text-sm text-slate-700">
+              <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm text-muted-foreground">
                 <span>Total</span>
-                <span className="text-base font-semibold text-slate-900">
+                <span className="text-base font-semibold text-foreground">
                   {formatCurrency(orderTotal)}
                 </span>
               </div>
               <button
-                className="mt-6 w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="mt-6 w-full rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted"
                 type="button"
                 disabled={orderLines.length === 0 || !clientLocked}
               >
