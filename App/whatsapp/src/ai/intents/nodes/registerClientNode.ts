@@ -3,7 +3,7 @@ import { GraphNode } from "@langchain/langgraph";
 import { State } from "../../state/schema.js";
 import { ai } from "../../providers/gemini.js";
 import { toMessageText } from "../../utils/message.js";
-import { findOrCreateClient } from "../../../services/clients.js";
+import { findOrCreateClient } from "../../../../backend/src/services/clients.js";
 import {
   getMissingClientFields,
   safeParseClientPayload,

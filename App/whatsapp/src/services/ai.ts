@@ -2,7 +2,11 @@ import { HumanMessage } from "@langchain/core/messages";
 import { graph } from "../ai/graph/strategy.js";
 
 
-export async function runAiIntent(message: string, sender: string,senderPhone?: string): Promise<string> {
+export async function runAiIntent(
+  message: string,
+  sender: string,
+  senderPhone?: string
+): Promise<string> {
 
   
   const respond = await graph.invoke({

@@ -1,6 +1,6 @@
 import { GraphNode } from "@langchain/langgraph";
 import { State } from "../../state/schema.js";
-import { listProducts, ProductListItem as Item } from "../../../services/products.js";
+import { listProducts, ProductListItem as Item } from "../../../../backend/src/services/products.js";
 import { toCapitalized } from "../utils/format.js";
 
 export const listPriceNode: GraphNode<typeof State> = async () => {

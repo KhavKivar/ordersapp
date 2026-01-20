@@ -4,9 +4,9 @@ import { State } from "../../state/schema.js";
 import { ai } from "../../providers/gemini.js";
 import { toMessageText } from "../../utils/message.js";
 
-import { CreateOrderInput } from "../../../services/orders.js";
-import { listProducts, ProductListItem } from "../../../services/products.js";
-import { getClientByPhoneId, OptionalClient } from "../../../services/clients.js";
+import { CreateOrderInput } from "../../../../backend/src/services/orders.js";
+import { listProducts, ProductListItem } from "../../../../backend/src/services/products.js";
+import { getClientByPhoneId, OptionalClient } from "../../../../backend/src/services/clients.js";
 
 const systemInstructionOrder = readFileSync(
   new URL("../prompts/order-parse.xml", import.meta.url),

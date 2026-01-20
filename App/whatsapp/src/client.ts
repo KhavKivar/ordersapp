@@ -5,7 +5,7 @@ import makeWASocket, {
 } from "baileys";
 import qrcode from "qrcode-terminal";
 import "dotenv/config";
-import { runAiIntent } from "../services/ai.js";
+import { runAiIntent } from "./services/ai.js";
 
 export async function startWhatsApp(): Promise<void> {
   const { state, saveCreds } = await useMultiFileAuthState("auth");
