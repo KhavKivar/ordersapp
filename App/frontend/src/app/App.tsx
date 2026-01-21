@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Route, Routes } from "react-router";
 import Home from "./home/page";
-import NewClientPage from "./clients/new/page";
+
 import OrdersPage from "./orders/page";
+import NewClientPage from "./clients/page";
 
 const queryClient = new QueryClient();
 function App() {
