@@ -17,7 +17,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             set -e
-            cd /home/opc/ordersapp/App/backend
+            cd /home/opc/ordersapp/app/backend
             if command -v docker >/dev/null 2>&1; then
               if docker compose ps >/dev/null 2>&1; then
                 echo "docker compose running"
