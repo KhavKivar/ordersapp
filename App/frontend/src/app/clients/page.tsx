@@ -1,11 +1,11 @@
 import { BackButton } from "@/components/ui/BackButton/backButton";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Input from "@/components/ui/Input/input";
-import FormField from "@/components/ui/Form/form_field";
 import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
+import FormField from "@/components/ui/Form/form_field";
+import Input from "@/components/ui/Input/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { z } from "zod";
 const schema = z.object({
   name: z.string().nonempty("El nombre es obligatorio"),
   localName: z.string().nonempty("El nombre del local es obligatorio"),
@@ -31,7 +31,7 @@ export default function NewClientPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-rose-50 text-slate-900">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
         <header className="space-y-3">
-          <BackButton className="text-accent-strong " label="Volver" />
+          <BackButton className="text-slate-600" label="Volver" />
 
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-700">
             Clientes

@@ -1,13 +1,48 @@
 {
-  "editor.formatOnSave": true,
+  "typescript.tsdk": "App/frontend/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  // ESLint Configuration
+  "eslint.enable": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+
+  // Auto-fix on save
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
   },
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+
+  // Prettier + ESLint integration
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "files.associations": {
+    "*.css": "tailwindcss"
   },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.includeLanguages": {
+    "typescript": "typescriptreact",
+    "typescriptreact": "typescriptreact"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    [
+      "(?:class|className|baseStyle|Style)\\s*[:=]\\s*['\"\\`]([^'\"\\`]*)['\"\\`]",
+      "['\"\\`]([^'\"\\`]*)['\"\\`]"
+    ],
+    [
+      "baseStyle\\s*=\\s*['\"\\`]([^'\"\\`]*)['\"\\`]",
+      "['\"\\`]([^'\"\\`]*)['\"\\`]"
+    ]
+  ],
+  "tailwindCSS.classAttributes": ["class", "className", ".*Style", ".*style"],
+  "tailwindCSS.emmetCompletions": true,
+  "files.exclude": {}
 }

@@ -14,7 +14,7 @@ export default function Input({
   ...props
 }: InputProps) {
   const baseStyle =
-    "w-full rounded-md border border-slate-200 bg- px-4 py-3 text-sm text-slate-900 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-100";
+    "w-full rounded-md bg-input-surface  px-4 py-3 text-sm  border-border border transition-all focus:border-amber-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-200/50";
   return (
     <input
       className={cn(baseStyle, className)}

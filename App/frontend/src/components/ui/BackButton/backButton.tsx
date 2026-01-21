@@ -36,8 +36,8 @@ function BackButton({
       type="button"
       onClick={handleClick}
       className={cn(
-        "cursor-pointer inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-accen transition hover:text-foreground",
-        props.className,
+        "inline-flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 transition hover:text-slate-900",
+        props.className
       )}
       {...props}
     >
