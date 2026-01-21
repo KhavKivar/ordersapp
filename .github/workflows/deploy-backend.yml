@@ -27,5 +27,9 @@ jobs:
             fi
             git fetch --all
             git reset --hard origin/main
+            npm install
             npm run migrate
+            if ss -lntp | grep -q ":3000"; then
+              fuser -k 3000/tcp || true
+            fi
             nohup npm run start >/tmp/ordersapp-backend.log 2>&1 &
