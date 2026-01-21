@@ -11,6 +11,8 @@ await fastify.register(cors, {
   origin: [
     "https://vasvani.vercel.app",
     "https://vasvani.shop",
+    "https://www.vasvani.shop",
+    "https://www.vasvani.vercel.app",
     "http://localhost:5173",
   ],
   credentials: true,
