@@ -3,6 +3,7 @@ import cors from "@fastify/cors";
 import { clientsRoutes } from "./routes/clients.js";
 import { ordersRoutes } from "./routes/orders.js";
 import { productsRoutes } from "./routes/products.js";
+import { sayHello } from "./routes/hello.js";
 
 const fastify = Fastify({ logger: true });
 
@@ -18,6 +19,7 @@ await fastify.register(cors, {
 await fastify.register(productsRoutes);
 await fastify.register(ordersRoutes);
 await fastify.register(clientsRoutes);
+await fastify.register(sayHello)
 
 const port = Number(process.env.PORT || 3000);
 await fastify.listen({ port, host: "0.0.0.0" });
