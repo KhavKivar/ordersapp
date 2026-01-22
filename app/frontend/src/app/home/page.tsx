@@ -40,7 +40,10 @@ export default function Home() {
             Crea un nuevo cliente para usarlo en los pedidos manuales.
           </p>
           <Spacer />
-          <Button onClick={() => navigate("/clients/new")}>
+          <Button
+            variant={"secondary"}
+            onClick={() => navigate("/clients/new")}
+          >
             Crear Cliente
           </Button>
         </Card>
