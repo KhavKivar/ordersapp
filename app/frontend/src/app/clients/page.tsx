@@ -1,4 +1,3 @@
-import { BackButton } from "@/components/ui/BackButton/backButton";
 import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
 import FormField from "@/components/ui/Form/form_field";
@@ -24,16 +23,8 @@ export default function NewClientPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-rose-50 text-slate-900">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
         <header className="space-y-3">
-          <BackButton className="text-slate-600" label="Volver" />
-
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-700">
-            Clientes
-          </p>
-          <h1 className="text-4xl font-semibold text-slate-900">
-            Nuevo cliente
-          </h1>
           <p className="max-w-2xl text-base text-slate-600">
             Completa los datos del cliente para usarlo en los pedidos.
           </p>

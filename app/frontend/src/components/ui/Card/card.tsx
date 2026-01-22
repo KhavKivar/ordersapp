@@ -8,8 +8,8 @@ function Card({ className, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-3xl border border-border bg-card/80 p-10 text-center shadow-lg",
-        className
+        "rounded-3xl border border-border bg-card/80 p-10 text-center ",
+        className,
       )}
       {...props}
     />

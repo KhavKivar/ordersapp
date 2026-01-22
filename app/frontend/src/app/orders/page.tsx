@@ -1,4 +1,3 @@
-import { BackButton } from "@/components/ui/BackButton/backButton";
 import { Button } from "@/components/ui/Button/button";
 import {
   Command,
@@ -26,7 +25,7 @@ import { Spacer } from "@/components/ui/Spacer/spacer";
 import API_BASE_URL from "@/config/api";
 import type { Client } from "@/features/client/api/client.schema";
 import { createOrder } from "@/features/orders/api/create-order";
-import type { Order } from "@/features/orders/api/order.schema";
+import type { OrderCreateDto } from "@/features/orders/api/order.schema";
 import type { Product } from "@/features/orders/api/product.schema";
 import { formatChileanPeso } from "@/utils/format-currency";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -88,7 +87,7 @@ export default function OrdersPage() {
   const [isProductOpen, setProductOpen] = useState(false);
   const mutation = useMutation({ mutationFn: createOrder });
 
-  const [order, setOrder] = useState<Order>({
+  const [order, setOrder] = useState<OrderCreateDto>({
     clientId: 0,
     items: [],
   });
@@ -123,7 +122,7 @@ export default function OrdersPage() {
 
     mutation.mutate(order, {
       onSuccess: () => {
-        navigate("/", { state: { toast: "Pedido agregado" } });
+        navigate("/orders", { state: { toast: "Pedido agregado" } });
       },
     });
   };
@@ -171,15 +170,6 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
-        <header className="space-y-3">
-          <BackButton className="text-foreground" label="Volver" />
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent-foreground">
-            Crear pedido
-          </p>
-          <h1 className="text-4xl font-semibold text-foreground">
-            Nuevo pedido manual
-          </h1>
-        </header>
         {isLoadingData && <div>Cargando...</div>}
         {isErrorData && <div>Error al cargar los clientes</div>}
         {isSuccessData && !isLoadingData && !isErrorData && (

@@ -1,8 +1,5 @@
 import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
-import { FloatingButton } from "@/components/ui/FloatingButton/floatingButton";
-import Header from "@/components/ui/Header/header";
-import SubHeader from "@/components/ui/Header/subHeader";
 import { Spacer } from "@/components/ui/Spacer/spacer";
 import { CheckCircle } from "lucide-react";
 import { useState } from "react";
@@ -11,7 +8,6 @@ import { useLocation, useNavigate } from "react-router";
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const toastMessage =
     typeof location.state === "object" && location.state
       ? (location.state as { toast?: string }).toast
@@ -37,23 +33,6 @@ export default function Home() {
         </div>
       )}
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
-        <header className="space-y-3">
-          <SubHeader text="Vasvani App" />
-          <Header text="Panel Principal" />
-          <p className="max-w-2xl text-base text-muted-foreground">
-            Esta vista esta en construccion. Pronto veras un resumen con los
-            pedidos recientes y accesos rapidos.
-          </p>
-        </header>
-        <Card>
-          <p className="text-lg font-semibold text-foreground">
-            Vista en desarrollo
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Aqui mostraremos el resumen de pedidos, accesos rapidos y
-            notificaciones clave.
-          </p>
-        </Card>
         <Card className="bg-card/90 p-8 text-left">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent-foreground">
             Acciones rapidas
@@ -65,16 +44,19 @@ export default function Home() {
             Crea un nuevo cliente para usarlo en los pedidos manuales.
           </p>
           <Spacer />
-          <Button variant={"primary"} onClick={() => navigate("/clients/new")}>
-            Crear Cliente
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button
+              variant={"primary"}
+              onClick={() => navigate("/clients/new")}
+            >
+              Crear Cliente
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/orders")}>
+              Ver pedidos
+            </Button>
+          </div>
         </Card>
       </div>
-      <FloatingButton
-        label="Agregar pedido"
-        title="Agregar pedido"
-        onClick={() => navigate("/orders")}
-      />
     </div>
   );
 }
