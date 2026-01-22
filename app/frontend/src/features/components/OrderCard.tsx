@@ -1,3 +1,14 @@
+import { Button } from "@/components/ui/Button/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { formatChileanPeso } from "@/utils/format-currency";
 
 type OrderLine = {
@@ -13,6 +24,7 @@ type OrderCardProps = {
   status: "pending" | "paid" | "delivered" | "delivered_paid" | "cancelled";
   createdAt: string;
   items: OrderLine[];
+  onDelete?: (orderId: number) => void;
 };
 
 const STATUS_LABELS: Record<OrderCardProps["status"], string> = {
@@ -38,6 +50,7 @@ export default function OrderCard({
   status,
   createdAt,
   items,
+  onDelete,
 }: OrderCardProps) {
   const total = items.reduce(
     (sum, item) => sum + item.pricePerUnit * item.quantity,
@@ -94,9 +107,39 @@ export default function OrderCard({
             year: "numeric",
           })}
         </span>
-        <span className="text-base font-semibold text-foreground">
-          {formatChileanPeso(total)}
-        </span>
+        <div className="flex items-center gap-3">
+          {onDelete && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="min-h-11 rounded-full border border-rose-200 px-4 text-xs font-semibold text-rose-600 transition-colors hover:border-rose-300 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-200"
+                >
+                  Eliminar
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Eliminar pedido</DialogTitle>
+                  <DialogDescription>
+                    ¿Estas seguro de eliminar este pedido?
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <DialogClose>Cancelar</DialogClose>
+                  <DialogClose asChild>
+                    <Button variant="destructive" onClick={() => onDelete(id)}>
+                      Eliminar
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+          <span className="text-base font-semibold text-foreground">
+            {formatChileanPeso(total)}
+          </span>
+        </div>
       </div>
     </article>
   );

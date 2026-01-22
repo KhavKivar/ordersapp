@@ -1,14 +1,22 @@
 import { FloatingButton } from "@/components/ui/FloatingButton/floatingButton";
 import OrderCard from "@/features/components/OrderCard";
+import { deleteOrder } from "@/features/orders/api/delete-order";
 import { getOrders } from "@/features/orders/api/get-orders";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 
 export default function OrdersListPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data, isPending, error } = useQuery({
     queryKey: ["orders"],
     queryFn: getOrders,
+  });
+  const { mutate: removeOrder, isPending: removePending } = useMutation({
+    mutationFn: deleteOrder,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
   });
 
   return (
@@ -33,6 +41,7 @@ export default function OrdersListPage() {
                   quantity: item.quantity,
                   pricePerUnit: item.pricePerUnit,
                 }))}
+                onDelete={removePending ? undefined : removeOrder}
               />
             ))}
           </div>
