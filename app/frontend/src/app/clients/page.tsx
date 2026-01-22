@@ -97,7 +97,7 @@ export default function NewClientPage() {
                 Todos los campos son obligatorios.
               </p>
 
-              <Button variant="secondary" type="submit">
+              <Button variant={"primary"} type="submit">
                 Guardar cliente
               </Button>
             </div>

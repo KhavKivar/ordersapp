@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 import type { UseFormRegisterReturn } from "react-hook-form";
 
 type InputProps = {
-  placeholder: string;
+  placeholder?: string;
   className?: string;
-  registration: Partial<UseFormRegisterReturn>;
+  registration?: Partial<UseFormRegisterReturn>;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 export default function Input({
