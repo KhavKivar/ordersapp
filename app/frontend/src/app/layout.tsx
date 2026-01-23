@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
 import Navbar from "@/components/navbar/navbar";
+import { Toaster } from "@/components/ui/sonner";
 
 type NavbarConfig = {
   title: string;
@@ -41,6 +42,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen">
+      <Toaster />
       <Navbar
         title={navbarConfig.title}
         subtitle={navbarConfig.subtitle}

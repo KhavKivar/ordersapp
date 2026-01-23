@@ -35,6 +35,7 @@ import { Store, User } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import z from "zod";
 
 const schema = z.object({
@@ -122,7 +123,11 @@ export default function OrdersPage() {
 
     mutation.mutate(order, {
       onSuccess: () => {
-        navigate("/orders", { state: { toast: "Pedido agregado" } });
+        navigate("/orders", {
+          replace: true,
+          state: { toast: "Pedido agregado" },
+        });
+        toast.success("Pedido agregado");
       },
     });
   };
@@ -173,10 +178,10 @@ export default function OrdersPage() {
         {isLoadingData && <div>Cargando...</div>}
         {isErrorData && <div>Error al cargar los clientes</div>}
         {isSuccessData && !isLoadingData && !isErrorData && (
-          <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <section className="grid gap-3 lg:grid-cols-[1.2fr_0.8fr]">
             <form onSubmit={onSubmit}>
-              <div className="space-y-6">
-                <div className="rounded-3xl border border-border/70 bg-card/70 p-6 shadow-sm">
+              <div className="space-y-3">
+                <div className="rounded-3xl border border-border/70 bg-card/70 p-6">
                   <Dialog open={isClientOpen} onOpenChange={setClientOpen}>
                     <DialogTrigger asChild>
                       <button className="text-left w-full">
@@ -255,7 +260,7 @@ export default function OrdersPage() {
                   </Dialog>
                 </div>
 
-                <div className="rounded-3xl border border-border bg-card/90 p-8 shadow-lg">
+                <div className="rounded-3xl border border-border bg-card/90 p-8">
                   <div className="grid gap-4 md:grid-cols-[1.2fr_0.6fr_0.6fr_0.4fr]">
                     <Dialog open={isProductOpen} onOpenChange={setProductOpen}>
                       <DialogTrigger asChild>
@@ -359,7 +364,7 @@ export default function OrdersPage() {
             </form>
 
             <aside className="space-y-6">
-              <div className="rounded-3xl border border-border bg-card/90 p-6 shadow-lg">
+              <div className="rounded-3xl border border-border bg-card/90 p-6">
                 <h2 className="text-lg font-semibold text-foreground">
                   Resumen del pedido
                 </h2>

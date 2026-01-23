@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Route, Routes } from "react-router";
-import Layout from "./layout";
-import Home from "./home/page";
 import NewClientPage from "./clients/page";
+import Home from "./home/page";
+import Layout from "./layout";
 import OrdersListPage from "./orders-list/page";
 import OrdersPage from "./orders/page";
 

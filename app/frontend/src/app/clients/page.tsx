@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 type FormFields = CreateClientDto;
 
@@ -29,7 +30,8 @@ export default function NewClientPage() {
     mutationFn: createClient,
     onSuccess: () => {
       console.log("Cliente creado");
-      navigate("/");
+      toast.success("Cliente creado");
+      navigate("/", { replace: true });
     },
     onError: (error) => {
       console.log(error);
