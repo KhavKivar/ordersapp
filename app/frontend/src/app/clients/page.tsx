@@ -2,12 +2,19 @@ import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
 import FormField from "@/components/ui/Form/form_field";
 import Input from "@/components/ui/Input/input";
-import { clientSchema, type Client } from "@/features/client/api/client.schema";
+
+import {
+  createClient,
+  CreateClientDtoSchema,
+  type CreateClientDto,
+} from "@/features/client/api/create-client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router";
 
-type FormFields = Client;
+type FormFields = CreateClientDto;
 
 export default function NewClientPage() {
   const {
@@ -15,10 +22,23 @@ export default function NewClientPage() {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(clientSchema),
+    resolver: zodResolver(CreateClientDtoSchema),
   });
+  const navigate = useNavigate();
+  const { mutate, isPending, error } = useMutation({
+    mutationFn: createClient,
+    onSuccess: () => {
+      console.log("Cliente creado");
+      navigate("/");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
   const onSubmit: SubmitHandler<FormFields> = (data) => {
-    console.log(data);
+    data.phoneId = data.phone;
+    mutate(data);
   };
 
   return (
