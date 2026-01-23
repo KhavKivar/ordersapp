@@ -41,6 +41,9 @@ export default function NewClientPage() {
     mutate(data);
   };
 
+  const errorMessage =
+    error instanceof Error ? error.message : "No se pudo crear el cliente.";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-rose-50 text-slate-900">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
@@ -50,6 +53,11 @@ export default function NewClientPage() {
           </p>
         </header>
         <Card className="text-left px-6 py-8">
+          {error && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="grid gap-5">
               <FormField
@@ -103,8 +111,8 @@ export default function NewClientPage() {
                 Todos los campos son obligatorios.
               </p>
 
-              <Button variant={"primary"} type="submit">
-                Guardar cliente
+              <Button variant={"primary"} type="submit" disabled={isPending}>
+                {isPending ? "Guardando..." : "Guardar cliente"}
               </Button>
             </div>
           </form>
