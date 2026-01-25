@@ -136,12 +136,17 @@ export async function ordersRoutes(fastify: FastifyInstance) {
       return reply.status(400).send({ error: "id is required" });
     }
 
-    const deleted = await deleteOrder(id);
+    try {
+      const deleted = await deleteOrder(id);
 
-    if (!deleted) {
-      return reply.status(404).send({ error: "order not found" });
+      if (!deleted) {
+        return reply.status(404).send({ error: "order not found" });
+      }
+
+      return { order: deleted };
+    } catch (error) {
+      request.log.error({ err: error }, "failed to delete order");
+      return reply.status(500).send({ error: "failed to delete order" });
     }
-
-    return { order: deleted };
   });
 }

@@ -12,6 +12,7 @@ export type OrderDetailLine = {
 
 export type OrderDetail = {
   orderId: number;
+  purchaseOrderId: number | null;
   createdAt: string;
   clientId: number;
   clientName: string | null;

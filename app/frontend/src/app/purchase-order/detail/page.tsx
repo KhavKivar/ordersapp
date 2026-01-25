@@ -1,12 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
+import {
+  getOrders,
+  type OrderListItem,
+} from "@/features/orders/api/get-orders";
 import OrderCard from "@/features/orders/components/OrderCard";
-import { getOrders, type OrderListItem } from "@/features/orders/api/get-orders";
 import { getPurchaseOrder } from "@/features/purchase-orders/api/get-purchase-order";
 import { updatePurchaseOrder } from "@/features/purchase-orders/api/update-purchase-order";
 import { formatChileanPeso } from "@/utils/format-currency";
@@ -69,12 +72,15 @@ export default function PurchaseOrderDetailPage() {
     enabled: Number.isFinite(purchaseOrderId),
   });
 
-  const { data: ordersData, isPending: ordersPending, error: ordersError } =
-    useQuery({
-      queryKey: ["orders"],
-      queryFn: getOrders,
-      enabled: isEditing,
-    });
+  const {
+    data: ordersData,
+    isPending: ordersPending,
+    error: ordersError,
+  } = useQuery({
+    queryKey: ["orders"],
+    queryFn: getOrders,
+    enabled: isEditing,
+  });
 
   const updateMutation = useMutation({
     mutationFn: updatePurchaseOrder,
@@ -85,6 +91,7 @@ export default function PurchaseOrderDetailPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
       setIsEditing(false);
+      navigate("/purchase-order");
     },
     onError: () => {
       toast.error("No se pudo actualizar la orden de compra");
@@ -186,7 +193,10 @@ export default function PurchaseOrderDetailPage() {
               compra.
             </p>
             <div className="mt-6">
-              <Button variant="outline" onClick={() => navigate("/purchase-order")}>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/purchase-order")}
+              >
                 Volver a ordenes de compra
               </Button>
             </div>
@@ -209,7 +219,10 @@ export default function PurchaseOrderDetailPage() {
               Intenta nuevamente o vuelve al listado.
             </p>
             <div className="mt-6">
-              <Button variant="outline" onClick={() => navigate("/purchase-order")}>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/purchase-order")}
+              >
                 Volver a ordenes de compra
               </Button>
             </div>
@@ -224,11 +237,14 @@ export default function PurchaseOrderDetailPage() {
                   Orden #{purchaseOrder.purchaseOrderId}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {new Date(purchaseOrder.createdAt).toLocaleDateString("es-CL", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {new Date(purchaseOrder.createdAt).toLocaleDateString(
+                    "es-CL",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    },
+                  )}
                 </p>
               </div>
               {!isEditing ? (
@@ -323,85 +339,11 @@ export default function PurchaseOrderDetailPage() {
                       ))
                     )}
                   </div>
-                  <div
-                    className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm text-muted-foreground"
-                  >
+                  <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm text-muted-foreground">
                     <span>Total compra</span>
                     <span className="text-base font-semibold text-foreground">
                       {formatChileanPeso(editConsolidatedTotal)}
                     </span>
-                  </div>
-                </Card>
-
-                <Card className="rounded-3xl border border-border/70 bg-card/90 p-6 text-left">
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Pedidos seleccionados
-                  </h2>
-                  <div className="mt-4 space-y-4">
-                    {selectedOrders.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        No hay pedidos asociados a esta orden de compra.
-                      </p>
-                    ) : (
-                      selectedOrders.map((order) => {
-                        const orderTotal = order.lines.reduce(
-                          (sum, line) => sum + line.pricePerUnit * line.quantity,
-                          0,
-                        );
-                        return (
-                          <div
-                            key={order.orderId}
-                            className="rounded-2xl border border-border/60 bg-white/80 p-4"
-                          >
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                              Pedido #{order.orderId}
-                            </p>
-                            <p className="mt-1 text-sm font-semibold text-foreground">
-                              {order.localName ?? "Cliente"}
-                            </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              {new Date(order.createdAt).toLocaleDateString(
-                                "es-CL",
-                                {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                },
-                              )}
-                            </p>
-                            <div className="mt-4 divide-y divide-border/60 rounded-2xl border border-border/60 bg-white">
-                              {order.lines.map((line) => (
-                                <div
-                                  key={line.lineId}
-                                  className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
-                                >
-                                  <div className="flex flex-col gap-1">
-                                    <p className="text-sm font-semibold text-foreground">
-                                      {line.productName ?? "Producto"}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                      {line.quantity} x{" "}
-                                      {formatChileanPeso(line.pricePerUnit)}
-                                    </p>
-                                  </div>
-                                  <span className="text-sm font-semibold text-foreground">
-                                    {formatChileanPeso(
-                                      line.pricePerUnit * line.quantity,
-                                    )}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                            <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-sm text-muted-foreground">
-                              <span>Total pedido</span>
-                              <span className="text-base font-semibold text-foreground">
-                                {formatChileanPeso(orderTotal)}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
                   </div>
                 </Card>
               </>
@@ -440,9 +382,7 @@ export default function PurchaseOrderDetailPage() {
                       ))
                     )}
                   </div>
-                  <div
-                    className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm text-muted-foreground"
-                  >
+                  <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm text-muted-foreground">
                     <span>Total compra</span>
                     <span className="text-base font-semibold text-foreground">
                       {formatChileanPeso(consolidatedTotal)}

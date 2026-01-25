@@ -20,6 +20,7 @@ export interface OrderListItem {
   localName: string | null;
   phone: string | null;
   lines: OrderLineItem[];
+  purchaseOrderId: number | null;
 }
 
 interface itemInput {
@@ -47,6 +48,7 @@ export async function listOrders(): Promise<OrderListItem[]> {
       phone: clients.phone,
       productName: products.name,
       buyPriceSupplier: products.buyPriceSupplier,
+      purchaseOrderId: orders.purchaseOrderId ?? null,
     })
     .from(orders)
     .innerJoin(clients, eq(orders.clientId, clients.id))
@@ -65,6 +67,7 @@ export async function listOrders(): Promise<OrderListItem[]> {
         localName: row.localName,
         phone: row.phone,
         lines: [],
+        purchaseOrderId: row.purchaseOrderId,
       };
       ordersMap.set(row.orderId, order);
     }
@@ -98,6 +101,7 @@ export async function getOrderById(id: number): Promise<OrderListItem | null> {
       phone: clients.phone,
       productName: products.name,
       buyPriceSupplier: products.buyPriceSupplier,
+      purchaseOrderId: orders.purchaseOrderId,
     })
     .from(orders)
     .innerJoin(clients, eq(orders.clientId, clients.id))
@@ -116,6 +120,7 @@ export async function getOrderById(id: number): Promise<OrderListItem | null> {
     if (!order) {
       order = {
         orderId: row.orderId,
+        purchaseOrderId: row.purchaseOrderId ?? null,
         createdAt: row.createdAt,
         clientId: row.clientId,
         localName: row.localName,
@@ -193,10 +198,13 @@ export async function updateOrder(id: number, input: CreateOrderInput) {
 }
 
 export async function deleteOrder(id: number) {
-  const [deleted] = await db
-    .delete(orders)
-    .where(eq(orders.id, id))
-    .returning();
+  return await db.transaction(async (tx) => {
+    await tx.delete(orderLines).where(eq(orderLines.orderId, id));
+    const [deleted] = await tx
+      .delete(orders)
+      .where(eq(orders.id, id))
+      .returning();
 
-  return deleted;
+    return deleted;
+  });
 }

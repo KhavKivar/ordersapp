@@ -11,6 +11,7 @@ export type OrderLine = {
 
 export type OrderListItem = {
   orderId: number;
+  purchaseOrderId: number | null;
   createdAt: string;
   localName: string | null;
   phone: string | null;
@@ -32,6 +33,7 @@ export const getOrders = async (): Promise<OrdersResponse> => {
   const ordersList = data.orders.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+
   const ordersResponse: OrdersResponse = {
     orders: ordersList,
   };

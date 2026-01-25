@@ -2,25 +2,36 @@ import { useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 
-import { Button } from "@/components/ui/Button/button";
-import OrderCard from "@/features/orders/components/OrderCard";
-import { getOrders, type OrderListItem } from "@/features/orders/api/get-orders";
-import { useAppSelector } from "@/hooks/redux.hooks";
 import {
   addSelectedPurchaseOrder,
   removeSelectedPurchaseOrder,
   selectedPurchaseOrder,
 } from "@/app/purchaseOrderSlice";
+import { Button } from "@/components/ui/Button/button";
+import {
+  getOrders,
+  type OrderListItem,
+} from "@/features/orders/api/get-orders";
+import OrderCard from "@/features/orders/components/OrderCard";
+import { useAppSelector } from "@/hooks/redux.hooks";
 
 export default function PurchaseOrderSelectPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const selectedOrders = useAppSelector(selectedPurchaseOrder);
 
-  const { data: ordersData, isPending, error } = useQuery({
+  const {
+    data: ordersData,
+    isPending,
+    error,
+  } = useQuery({
     queryKey: ["orders"],
     queryFn: getOrders,
   });
+
+  const ordersDataFiltered = ordersData?.orders.filter(
+    (order) => order.purchaseOrderId === null,
+  );
 
   const handleToggleOrder = (order: OrderListItem) => {
     const isSelected = selectedOrders.some(
@@ -64,7 +75,7 @@ export default function PurchaseOrderSelectPage() {
           {isPending && <div>Cargando pedidos...</div>}
           {error && <div>Error cargando pedidos</div>}
           <div className="grid gap-4">
-            {ordersData?.orders.map((order) => (
+            {ordersDataFiltered?.map((order) => (
               <OrderCard
                 key={order.orderId}
                 id={order.orderId}

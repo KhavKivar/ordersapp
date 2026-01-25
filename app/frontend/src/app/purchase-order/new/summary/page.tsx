@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -83,12 +83,6 @@ export default function PurchaseOrderSummaryPage() {
   const handleBackToSelect = () => {
     navigate("/purchase-order/new/select");
   };
-
-  useEffect(() => {
-    if (selectedOrders.length === 0) {
-      navigate("/purchase-order/new/select", { replace: true });
-    }
-  }, [navigate, selectedOrders.length]);
 
   return (
     <>
