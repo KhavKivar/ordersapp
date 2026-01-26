@@ -1,66 +1,144 @@
-import { CheckCircle } from "lucide-react";
-import { useState } from "react";
+import {
+  ArrowRight,
+  BarChart3,
+  Package,
+  ShoppingBag,
+  Store,
+  Users,
+} from "lucide-react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
+import { toast } from "sonner";
 
-import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
-import { Spacer } from "@/components/ui/Spacer/spacer";
+import { cn } from "@/lib/utils";
+
+// Definimos las opciones del menú para iterar limpiamente
+const DASHBOARD_ITEMS = [
+  {
+    title: "Pedidos",
+    description: "Gestionar pedidos de clientes",
+    icon: ShoppingBag,
+    href: "/order",
+    color: "text-blue-600",
+    bgColor: "bg-blue-50 border-blue-100",
+  },
+  {
+    title: "Clientes",
+    description: "Directorio de locales",
+    icon: Users,
+    href: "/client",
+    color: "text-orange-600",
+    bgColor: "bg-orange-50 border-orange-100",
+  },
+  {
+    title: "Compras",
+    description: "Órdenes a proveedores",
+    icon: Package,
+    href: "/purchase-order",
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50 border-indigo-100",
+  },
+  {
+    title: "Estadísticas",
+    description: "Reportes y métricas",
+    icon: BarChart3,
+    href: "/stats",
+    color: "text-emerald-600",
+    bgColor: "bg-emerald-50 border-emerald-100",
+  },
+];
 
 export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
-  const toastMessage =
-    typeof location.state === "object" && location.state
-      ? (location.state as { toast?: string }).toast
-      : undefined;
-  const [showToast, setShowToast] = useState(Boolean(toastMessage));
 
-  const handleToastDismiss = () => {
-    setShowToast(false);
-    navigate(location.pathname, { replace: true });
-  };
+  // Lógica mejorada del Toast:
+  // Usamos useEffect para detectar el mensaje una sola vez al montar
+  useEffect(() => {
+    if (
+      location.state &&
+      typeof location.state === "object" &&
+      "toast" in location.state
+    ) {
+      const message = (location.state as { toast: string }).toast;
+
+      // Pequeño delay para que se vea la animación de entrada si vienes de otra página
+      setTimeout(() => toast.success(message), 100);
+
+      // Limpiamos el state para que no aparezca de nuevo al refrescar
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   return (
-    <div className="min-h-screen ">
-      {showToast && (
-        <div className="fixed inset-x-0 top-0 z-50 bg-emerald-600 text-white shadow-lg">
-          <div
-            className="toast-auto-hide mx-auto flex max-w-3xl items-center gap-2 px-6 py-3 text-sm font-semibold"
-            onAnimationEnd={handleToastDismiss}
-          >
-            <CheckCircle className="h-4 w-4" aria-hidden />
-            {toastMessage ?? "Pedido agregado"}
-          </div>
-        </div>
-      )}
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
-        <Card className="bg-card/90 p-8 text-left">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-accent-foreground">
-            Acciones rapidas
-          </p>
-          <h2 className="mt-3 text-lg font-semibold text-foreground">
-            Accede rapido
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Gestiona pedidos, clientes y ordenes de compra desde aqui.
-          </p>
-          <Spacer />
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button variant="outline" onClick={() => navigate("/order")}>
-              Pedidos
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/client")}>
-              Clientes
-            </Button>
-            <Button variant="outline" onClick={() => navigate("/stats")}>
-              Estadísticas
-            </Button>
-            <Button
-              variant={"primary"}
-              onClick={() => navigate("/purchase-order")}
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pb-12 pt-8 sm:pt-12 lg:pt-16">
+        {/* ACCIONES RÁPIDAS (GRID) */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+          {DASHBOARD_ITEMS.map((item) => (
+            <Card
+              key={item.title}
+              onClick={() => navigate(item.href)}
+              className={cn(
+                "group relative cursor-pointer overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-md",
+                "bg-white border-slate-200", // Base style
+              )}
             >
-              Compras
-            </Button>
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-4">
+                  <div
+                    className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-2xl border transition-colors",
+                      item.bgColor,
+                    )}
+                  >
+                    <item.icon className={cn("h-6 w-6", item.color)} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 group-hover:text-slate-700 text-left">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-slate-500">{item.description}</p>
+                  </div>
+                </div>
+
+                {/* Flecha que aparece al hacer hover */}
+                <div className="opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <ArrowRight className="h-5 w-5 text-slate-400" />
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* SECCIÓN RESUMEN (Opcional - Ejemplo visual) */}
+        <Card className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 text-slate-500 mb-4">
+            <Store className="h-4 w-4" />
+            <span className="text-xs font-bold uppercase tracking-wider">
+              Estado del Sistema
+            </span>
+          </div>
+          <div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            <div className="px-4 py-2 text-center sm:text-left">
+              <span className="block text-2xl font-bold text-slate-900">
+                --
+              </span>
+              <span className="text-xs text-slate-500">Pedidos Hoy</span>
+            </div>
+            <div className="px-4 py-2 text-center sm:text-left">
+              <span className="block text-2xl font-bold text-slate-900">
+                --
+              </span>
+              <span className="text-xs text-slate-500">Por Despachar</span>
+            </div>
+            <div className="px-4 py-2 text-center sm:text-left">
+              <span className="block text-2xl font-bold text-slate-900">
+                --
+              </span>
+              <span className="text-xs text-slate-500">Clientes Activos</span>
+            </div>
           </div>
         </Card>
       </div>

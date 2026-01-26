@@ -8,7 +8,6 @@ import {
   Plus,
   Store,
   Trash2,
-  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -144,19 +143,6 @@ export default function ClientsAllPage() {
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 pb-12 pt-6 sm:px-6 sm:pt-12">
         {/* HEADER: Adaptable de móvil a desktop */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 sm:h-10 sm:w-10">
-                <Users className="size-5 sm:size-6" />
-              </div>
-              <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                Clientes
-              </h1>
-            </div>
-            <p className="text-sm text-muted-foreground sm:text-base">
-              Gestiona tus locales y contactos registrados.
-            </p>
-          </div>
           <Button
             variant="primary"
             onClick={() => navigate("/client/new")}

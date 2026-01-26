@@ -9,6 +9,7 @@ import {
   type OrderListItem,
 } from "@/features/orders/api/get-orders";
 import OrderCard from "@/features/orders/components/OrderCard";
+import { Plus } from "lucide-react";
 
 export default function OrdersListPage() {
   const navigate = useNavigate();
@@ -45,10 +46,12 @@ export default function OrdersListPage() {
   return (
     <div className="min-h-screen">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-2   px-6 pb-12 pt-4 sm:pt-8 lg:pt-12">
-        <p className="max-w-2xl text-base text-muted-foreground">
-          Revisa los pedidos creados, su estado y el detalle de productos.
-        </p>
-        <Button variant="primary" onClick={() => navigate("/order/new")}>
+        <Button
+          variant="primary"
+          onClick={() => navigate("/order/new")}
+          className="h-12 w-full rounded-2xl shadow-md shadow-emerald-100 sm:h-10 sm:w-auto sm:px-6"
+        >
+          <Plus className="mr-2 size-5 sm:size-4" />
           Crear pedido
         </Button>
 

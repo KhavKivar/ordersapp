@@ -72,7 +72,7 @@ export default function Layout() {
     switch (location.pathname) {
       case "/order":
         return {
-          title: "Historial de pedidos",
+          title: "Pedidos",
           showBack: true,
           backTo: "/",
         };

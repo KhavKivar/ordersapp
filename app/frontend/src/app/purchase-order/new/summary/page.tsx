@@ -1,4 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Info,
+  PackageSearch,
+  ShoppingBag,
+} from "lucide-react";
 import { useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
@@ -10,7 +19,6 @@ import {
 } from "@/app/purchaseOrderSlice";
 import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
-import { Spacer } from "@/components/ui/Spacer/spacer";
 import { createPurchaseOrder } from "@/features/purchase-orders/api/create-purchase-orders";
 import { useAppSelector } from "@/hooks/redux.hooks";
 import { formatChileanPeso } from "@/utils/format-currency";
@@ -32,7 +40,7 @@ export default function PurchaseOrderSummaryPage() {
     onSuccess: () => {
       dispatch(cleanSelectedPurchaseOrder());
       navigate("/purchase-order", { replace: true });
-      toast.success("Orden de compra creada");
+      toast.success("Orden de compra creada correctamente");
     },
     onError: () => {
       toast.error("No se pudo crear la orden de compra");
@@ -85,120 +93,185 @@ export default function PurchaseOrderSummaryPage() {
   };
 
   return (
-    <>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-2xl text-base text-muted-foreground">
-          Resumen de compra con el detalle de productos y el total.
-        </p>
-        <Button variant="outline" onClick={handleBackToSelect}>
+    <div className="space-y-8 pb-32 sm:pb-10">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+            Confirmar Orden
+          </h1>
+          <p className="mt-1 text-slate-500">
+            Revisa el consolidado de productos antes de generar la orden de
+            compra.
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={handleBackToSelect}
+          className="rounded-xl"
+        >
+          <ChevronLeft className="mr-2 size-4" />
           Cambiar pedidos
         </Button>
       </div>
-      <section className="space-y-6">
-        <Card className="rounded-3xl border border-border bg-card/90 p-6 text-left">
-          <h2 className="text-lg font-semibold text-foreground">
-            Resumen de compra
-          </h2>
-          <div className="mt-4 divide-y divide-border/60 rounded-2xl border border-border/60 bg-white/80">
-            {purchaseItems.length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">
-                Agrega pedidos para consolidar productos.
-              </p>
-            ) : (
-              purchaseItems.map((item) => (
-                <div
-                  key={item.productId}
-                  className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
-                >
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm font-semibold text-foreground">
-                      {item.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {item.quantity} x {formatChileanPeso(item.pricePerUnit)}
-                    </p>
-                  </div>
-                  <span className="text-sm font-semibold text-foreground">
-                    {formatChileanPeso(item.pricePerUnit * item.quantity)}
-                  </span>
+
+      <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
+        {/* COLUMNA IZQUIERDA: CONSOLIDADO */}
+        <section className="space-y-6 lg:col-span-7">
+          <Card className="overflow-hidden rounded-3xl border-0 shadow-sm ring-1 ring-slate-200">
+            <div className="bg-slate-900 px-6 py-4 text-white">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="size-5 text-indigo-400" />
+                <h2 className="text-lg font-bold">Consolidado de Productos</h2>
+              </div>
+            </div>
+
+            <div className="bg-white">
+              {purchaseItems.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <PackageSearch className="size-10 opacity-20" />
+                  <p className="mt-2">No hay productos consolidado.</p>
                 </div>
-              ))
-            )}
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {purchaseItems.map((item) => (
+                    <div
+                      key={item.productId}
+                      className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-slate-50/50"
+                    >
+                      <div className="flex flex-col gap-0.5">
+                        <p className="font-semibold text-slate-900">
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {item.quantity} unidades ×{" "}
+                          {formatChileanPeso(item.pricePerUnit)}
+                        </p>
+                      </div>
+                      <span className="font-bold text-slate-900">
+                        {formatChileanPeso(item.pricePerUnit * item.quantity)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-slate-50 px-6 py-6 border-t border-slate-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    Total Estimado
+                  </p>
+                  <p className="text-2xl font-black text-indigo-600">
+                    {formatChileanPeso(total)}
+                  </p>
+                </div>
+                <Button
+                  variant="primary"
+                  onClick={handleCreatePurchaseOrder}
+                  disabled={
+                    purchaseItems.length === 0 ||
+                    purchaseOrderMutation.isPending
+                  }
+                  className="hidden sm:flex px-8 py-6 rounded-2xl shadow-lg shadow-indigo-100"
+                >
+                  {purchaseOrderMutation.isPending
+                    ? "Generando..."
+                    : "Crear Orden de Compra"}
+                  {!purchaseOrderMutation.isPending && (
+                    <ChevronRight className="ml-2 size-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          <div className="flex items-start gap-3 rounded-2xl bg-indigo-50/50 p-4 border border-indigo-100/50">
+            <Info className="size-5 text-indigo-500 mt-0.5 shrink-0" />
+            <p className="text-sm text-indigo-700 leading-relaxed">
+              Esta orden consolidará todos los productos de los pedidos
+              seleccionados en una única lista para facilitar la compra al
+              proveedor.
+            </p>
           </div>
-          <div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-sm text-muted-foreground">
-            <span>Total estimado</span>
-            <span className="text-base font-semibold text-foreground">
+        </section>
+
+        {/* COLUMNA DERECHA: PEDIDOS FUENTE */}
+        <section className="space-y-4 lg:col-span-5">
+          <h3 className="flex items-center gap-2 px-1 text-sm font-bold uppercase tracking-wider text-slate-500">
+            <Clock className="size-4" />
+            Pedidos Seleccionados ({selectedOrders.length})
+          </h3>
+          <div className="grid gap-4">
+            {selectedOrders.map((order) => (
+              <Card
+                key={order.orderId}
+                className="group overflow-hidden rounded-2xl border-slate-200 bg-white/70 p-4 shadow-none transition-all hover:bg-white hover:shadow-md"
+              >
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                      Pedido #{order.orderId}
+                    </span>
+                    <h4 className="font-bold text-slate-900">
+                      {order.localName || "Local"}
+                    </h4>
+                  </div>
+                  <CheckCircle2 className="size-5 text-emerald-500" />
+                </div>
+
+                <div className="space-y-1.5">
+                  {order.lines.slice(0, 2).map((line) => (
+                    <div
+                      key={line.lineId}
+                      className="flex items-center justify-between text-xs"
+                    >
+                      <span className="text-slate-600">
+                        {line.quantity}x {line.productName}
+                      </span>
+                      <span className="font-medium text-slate-900">
+                        {formatChileanPeso(line.pricePerUnit * line.quantity)}
+                      </span>
+                    </div>
+                  ))}
+                  {order.lines.length > 2 && (
+                    <p className="text-[10px] italic text-slate-400 font-medium">
+                      + {order.lines.length - 2} productos adicionales
+                    </p>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* STICKY BOTTOM BAR FOR MOBILE */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/90 p-4 backdrop-blur-xl sm:hidden">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-4">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              Total
+            </span>
+            <span className="text-xl font-black text-indigo-600">
               {formatChileanPeso(total)}
             </span>
           </div>
-          <Spacer size={5} />
           <Button
             variant="primary"
             onClick={handleCreatePurchaseOrder}
             disabled={
               purchaseItems.length === 0 || purchaseOrderMutation.isPending
             }
+            className="flex-1 h-12 shadow-lg shadow-indigo-100 rounded-xl"
           >
-            {purchaseOrderMutation.isPending
-              ? "Creando..."
-              : "Crear orden de compra"}
-          </Button>
-        </Card>
-        <Card className="rounded-3xl border border-border/70 bg-card/90 p-6 text-left">
-          <h2 className="text-lg font-semibold text-foreground">
-            Pedidos seleccionados
-          </h2>
-          <div className="mt-4 space-y-3">
-            {selectedOrders.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No hay pedidos seleccionados.
-              </p>
-            ) : (
-              selectedOrders.map((order) => (
-                <div
-                  key={order.orderId}
-                  className="rounded-2xl border border-border/60 bg-white/80 p-4"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                    Pedido #{order.orderId}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-foreground">
-                    {order.localName ?? "Local"}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(order.createdAt).toLocaleDateString("es-CL", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </p>
-                  <div className="mt-4 divide-y divide-border/60 rounded-2xl border border-border/60 bg-white">
-                    {order.lines.map((line) => (
-                      <div
-                        key={line.lineId}
-                        className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
-                      >
-                        <div className="flex flex-col gap-1">
-                          <p className="text-sm font-semibold text-foreground">
-                            {line.productName ?? "Producto"}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {line.quantity} x{" "}
-                            {formatChileanPeso(line.pricePerUnit)}
-                          </p>
-                        </div>
-                        <span className="text-sm font-semibold text-foreground">
-                          {formatChileanPeso(line.pricePerUnit * line.quantity)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))
+            {purchaseOrderMutation.isPending ? "Generando..." : "Generar Orden"}
+            {!purchaseOrderMutation.isPending && (
+              <ChevronRight className="ml-2 size-4" />
             )}
-          </div>
-        </Card>
-      </section>
-    </>
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

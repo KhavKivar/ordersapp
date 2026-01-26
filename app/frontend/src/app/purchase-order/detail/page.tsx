@@ -9,7 +9,7 @@ import {
   Store,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 
@@ -76,53 +76,64 @@ const ConsolidatedView = ({
   lines: ConsolidatedLine[];
   total: number;
 }) => (
-  <Card className="overflow-hidden rounded-[2rem] border border-indigo-100 bg-white shadow-sm transition-shadow hover:shadow-md">
-    <div className="border-b border-indigo-50 bg-indigo-50/50 px-6 py-4">
-      <div className="flex items-center gap-2 text-indigo-700">
-        <ShoppingBasket className="size-5" />
-        <h2 className="text-lg font-bold">Consolidado de Compra</h2>
+  <Card className="overflow-hidden rounded-[2.5rem] border-0 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100">
+    <div className="bg-slate-900 px-8 py-6 text-white">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-indigo-400">
+          <ShoppingBasket className="size-6" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold tracking-tight">Consolidado</h2>
+          <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">
+            Total a pedir al proveedor
+          </p>
+        </div>
       </div>
-      <p className="mt-1 text-xs text-indigo-600/80">
-        Resumen total de productos a pedir al proveedor.
-      </p>
     </div>
 
-    <div className="divide-y divide-slate-100">
-      {lines.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-          <Package className="size-8 opacity-20" />
-          <p className="mt-2 text-sm">No hay productos seleccionados.</p>
-        </div>
-      ) : (
-        lines.map((line) => (
-          <div
-            key={line.productId}
-            className="flex items-center justify-between px-6 py-4 hover:bg-slate-50/50"
-          >
-            <div className="flex flex-col">
-              <span className="font-semibold text-slate-800">
-                {line.productName}
-              </span>
-              <span className="text-xs text-slate-500">
-                {line.quantity} un. x {formatChileanPeso(line.buyPriceSupplier)}
+    <div className="bg-white px-2">
+      <div className="divide-y divide-slate-100">
+        {lines.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-slate-300">
+            <Package className="size-12 opacity-20" />
+            <p className="mt-4 text-sm font-medium">
+              No hay productos en esta orden
+            </p>
+          </div>
+        ) : (
+          lines.map((line) => (
+            <div
+              key={line.productId}
+              className="flex items-center justify-between px-6 py-5 transition-colors hover:bg-slate-50/50"
+            >
+              <div className="flex flex-col gap-0.5">
+                <span className="font-bold text-slate-900">
+                  {line.productName}
+                </span>
+                <span className="text-xs font-semibold text-slate-400">
+                  {line.quantity} unidades ×{" "}
+                  {formatChileanPeso(line.buyPriceSupplier)}
+                </span>
+              </div>
+              <span className="text-lg font-black text-slate-900">
+                {formatChileanPeso(line.buyPriceSupplier * line.quantity)}
               </span>
             </div>
-            <span className="font-mono font-medium text-slate-900">
-              {formatChileanPeso(line.buyPriceSupplier * line.quantity)}
-            </span>
-          </div>
-        ))
-      )}
+          ))
+        )}
+      </div>
     </div>
 
-    <div className="bg-slate-50 px-6 py-4">
+    <div className="bg-indigo-50/50 px-8 py-6 border-t border-indigo-100/50">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
-          Total Estimado
-        </span>
-        <span className="text-xl font-black text-indigo-600">
-          {formatChileanPeso(total)}
-        </span>
+        <div>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">
+            Total Estimado
+          </span>
+          <div className="text-3xl font-black text-indigo-600">
+            {formatChileanPeso(total)}
+          </div>
+        </div>
       </div>
     </div>
   </Card>
@@ -174,22 +185,26 @@ export default function PurchaseOrderDetailPage() {
   });
 
   // 3. Effects & Memos
-  useEffect(() => {
-    if (!purchaseOrder || isEditing) return;
-    setSelectedOrderIds(purchaseOrder.orders.map((o) => o.orderId));
-  }, [isEditing, purchaseOrder]);
-
   const consolidated = useMemo(
     () => (purchaseOrder ? buildConsolidatedLines(purchaseOrder.orders) : []),
     [purchaseOrder],
   );
 
+  // Initialize selectedOrderIds when not editing
+  const effectiveSelectedOrderIds = useMemo(
+    () =>
+      isEditing
+        ? selectedOrderIds
+        : (purchaseOrder?.orders.map((o) => o.orderId) ?? []),
+    [isEditing, selectedOrderIds, purchaseOrder],
+  );
+
   const selectedOrders = useMemo(() => {
     if (!ordersData) return [];
     return ordersData.orders.filter((o) =>
-      selectedOrderIds.includes(o.orderId),
+      effectiveSelectedOrderIds.includes(o.orderId),
     );
-  }, [ordersData, selectedOrderIds]);
+  }, [ordersData, effectiveSelectedOrderIds]);
 
   const editConsolidated = useMemo(
     () => buildConsolidatedLines(selectedOrders),
@@ -228,18 +243,22 @@ export default function PurchaseOrderDetailPage() {
   };
 
   const handleToggleOrder = (order: OrderListItem) => {
-    setSelectedOrderIds((prev) =>
-      prev.includes(order.orderId)
-        ? prev.filter((id) => id !== order.orderId)
-        : [...prev, order.orderId],
-    );
+    setSelectedOrderIds((prev) => {
+      const current = isEditing
+        ? prev
+        : (purchaseOrder?.orders.map((o) => o.orderId) ?? []);
+      return current.includes(order.orderId)
+        ? current.filter((id) => id !== order.orderId)
+        : [...current, order.orderId];
+    });
   };
 
   const handleSaveChanges = () => {
-    if (updateMutation.isPending || selectedOrderIds.length === 0) return;
+    if (updateMutation.isPending || effectiveSelectedOrderIds.length === 0)
+      return;
     updateMutation.mutate({
       id: purchaseOrderId,
-      orderListIds: selectedOrderIds,
+      orderListIds: effectiveSelectedOrderIds,
     });
   };
 
@@ -291,18 +310,23 @@ export default function PurchaseOrderDetailPage() {
         {purchaseOrder && (
           <>
             {/* CABECERA PRINCIPAL */}
-            <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
-                    <Package className="size-5" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-slate-900">
+            <header className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-indigo-600 text-white shadow-lg shadow-indigo-200">
+                  <Package className="size-7" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-3xl font-black tracking-tight text-slate-900">
                       Orden #{purchaseOrder.purchaseOrderId}
                     </h1>
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
-                      <Calendar className="size-3.5" />
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                      Activa
+                    </span>
+                  </div>
+                  <div className="mt-1 flex items-center gap-3 text-sm font-medium text-slate-500">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="size-4 text-slate-400" />
                       <span>
                         {new Date(purchaseOrder.createdAt).toLocaleDateString(
                           "es-CL",
@@ -323,17 +347,17 @@ export default function PurchaseOrderDetailPage() {
                 <Button
                   variant="outline"
                   onClick={handleStartEdit}
-                  className="h-12 w-full justify-center rounded-xl shadow-sm sm:h-10 sm:w-auto"
+                  className="group h-12 w-full justify-center rounded-2xl border-slate-200 bg-white px-6 font-bold shadow-sm transition-all hover:bg-slate-50 hover:ring-2 hover:ring-indigo-100 sm:w-auto"
                 >
-                  <Edit className="mr-2 size-4 text-slate-500" />
+                  <Edit className="mr-2 size-4 text-indigo-500 transition-transform group-hover:scale-110" />
                   Modificar Orden
                 </Button>
               ) : (
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                   <Button
                     variant="ghost"
                     onClick={handleCancelEdit}
-                    className="h-12 w-full rounded-xl text-slate-500 sm:h-10 sm:w-auto"
+                    className="h-12 w-full rounded-2xl font-bold text-slate-500 hover:bg-slate-100 sm:w-auto"
                   >
                     <X className="mr-2 size-4" />
                     Cancelar
@@ -344,7 +368,7 @@ export default function PurchaseOrderDetailPage() {
                     disabled={
                       selectedOrderIds.length === 0 || updateMutation.isPending
                     }
-                    className="h-12 w-full rounded-xl shadow-md shadow-indigo-100 sm:h-10 sm:w-auto"
+                    className="h-12 w-full rounded-2xl px-8 font-black shadow-lg shadow-indigo-100 sm:w-auto"
                   >
                     {updateMutation.isPending ? (
                       "Guardando..."
@@ -399,7 +423,7 @@ export default function PurchaseOrderDetailPage() {
                               pricePerUnit: i.pricePerUnit,
                               buyPriceSupplier: i.buyPriceSupplier,
                             }))}
-                            isSelected={selectedOrderIds.includes(
+                            isSelected={effectiveSelectedOrderIds.includes(
                               order.orderId,
                             )}
                             onClick={() => handleToggleOrder(order)}
