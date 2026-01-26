@@ -3,6 +3,7 @@ import {
   AlertCircle,
   Calendar,
   ChevronRight,
+  Copy,
   Loader2,
   Package,
   Plus,
@@ -26,7 +27,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { deletePurchaseOrder } from "@/features/purchase-orders/api/delete-purchase-order";
-import { getPurchaseOrders } from "@/features/purchase-orders/api/get-purchase-orders";
+import {
+  getPurchaseOrders,
+  type PurchaseOrderLine,
+  type PurchaseOrderListItem,
+} from "@/features/purchase-orders/api/get-purchase-orders";
 import { cn } from "@/lib/utils";
 import { formatChileanPeso } from "@/utils/format-currency";
 
@@ -77,6 +82,27 @@ export default function PurchaseOrdersListPage() {
       return;
     }
     deleteMutation.mutate(orderId);
+  };
+
+  const handleCopy = (order: PurchaseOrderListItem, total: number) => {
+    const orderText = [
+      `📦 *Orden de Compra #${order.purchaseOrderId}*`,
+      `📅 Fecha: ${new Date(order.createdAt).toLocaleDateString("es-CL")}`,
+      "",
+      ...order.lines.map(
+        (line: PurchaseOrderLine) =>
+          `• ${line.productName ?? "Producto"}: ${line.quantity} x ${formatChileanPeso(line.buyPriceSupplier)} = ${formatChileanPeso(line.buyPriceSupplier * line.quantity)}`,
+      ),
+      "",
+      `💰 *Total: ${formatChileanPeso(total)}*`,
+    ].join("\n");
+
+    try {
+      navigator.clipboard.writeText(orderText);
+      toast.success("Orden copiada al portapapeles");
+    } catch {
+      toast.error("Error al copiar");
+    }
   };
 
   return (
@@ -184,7 +210,16 @@ export default function PurchaseOrdersListPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-all">
+                    <div className="flex items-center gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-all">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 rounded-full bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
+                        onClick={() => handleCopy(order, orderTotal)}
+                        title="Copiar detalles"
+                      >
+                        <Copy className="size-4" />
+                      </Button>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button

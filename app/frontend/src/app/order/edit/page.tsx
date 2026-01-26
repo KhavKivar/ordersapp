@@ -332,10 +332,10 @@ export default function OrdersEditPage() {
                                 selectProduct && "bg-indigo-50 ring-indigo-200",
                               )}
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 min-w-0 flex-1">
                                 <Package
                                   className={cn(
-                                    "size-4",
+                                    "size-4 shrink-0",
                                     selectProduct
                                       ? "text-indigo-600"
                                       : "text-slate-400",
@@ -343,7 +343,7 @@ export default function OrdersEditPage() {
                                 />
                                 <span
                                   className={cn(
-                                    "text-sm font-medium",
+                                    "text-sm font-medium truncate block min-w-0 flex-1",
                                     selectProduct
                                       ? "text-indigo-900"
                                       : "text-slate-400",
@@ -352,7 +352,7 @@ export default function OrdersEditPage() {
                                   {selectProduct?.name ?? "Buscar productos..."}
                                 </span>
                               </div>
-                              <Search className="size-4 text-slate-300" />
+                              <Search className="size-4 text-slate-300 shrink-0 ml-2" />
                             </div>
                           </FormField>
                         </button>
@@ -394,11 +394,11 @@ export default function OrdersEditPage() {
                                       }}
                                       className="rounded-xl px-4 py-3"
                                     >
-                                      <div className="flex items-center justify-between w-full">
-                                        <span className="font-bold text-slate-700">
+                                      <div className="flex items-center justify-between w-full gap-4 overflow-hidden">
+                                        <span className="font-bold text-slate-700 truncate block min-w-0 flex-1">
                                           {product.name}
                                         </span>
-                                        <span className="text-[10px] font-black tracking-widest text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">
+                                        <span className="text-[10px] font-black tracking-widest text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md shrink-0">
                                           {formatChileanPeso(
                                             product.sellPriceClient,
                                           )}
@@ -490,9 +490,9 @@ export default function OrdersEditPage() {
                           key={item.productId}
                           className="group relative rounded-2xl bg-slate-50/50 p-4 ring-1 ring-slate-100 transition-all hover:bg-white hover:ring-indigo-100"
                         >
-                          <div className="flex justify-between items-start">
-                            <div className="min-w-0 pr-8">
-                              <p className="font-black text-slate-900 truncate">
+                          <div className="flex justify-between items-start gap-4 overflow-hidden">
+                            <div className="min-w-0 flex-1 pr-4">
+                              <p className="font-black text-slate-900 truncate block">
                                 {item.name}
                               </p>
                               <p className="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">
@@ -500,19 +500,22 @@ export default function OrdersEditPage() {
                                 {formatChileanPeso(item.pricePerUnit)}
                               </p>
                             </div>
-                            <span className="font-black text-slate-900">
+                            <span className="font-black text-slate-900 shrink-0">
                               {formatChileanPeso(
                                 item.pricePerUnit * item.quantity,
                               )}
                             </span>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(item.productId)}
-                            className="absolute top-2 right-2 h-7 w-7 flex items-center justify-center rounded-full bg-rose-50 text-rose-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-600 hover:text-white"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
+                          <div className="mt-3 flex justify-end border-t border-slate-100/50 pt-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(item.productId)}
+                              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-700"
+                            >
+                              <Trash2 className="size-3.5" />
+                              Eliminar item
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>

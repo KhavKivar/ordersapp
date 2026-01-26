@@ -40,7 +40,7 @@ function BackButton({
       type="button"
       onClick={handleClick}
       className={cn(
-        "cursor-pointer",
+        "cursor-pointer ",
         iconOnly
           ? "inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-white/80 text-sm text-slate-700 shadow-sm transition hover:border-border hover:text-slate-900"
           : "inline-flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 transition hover:text-slate-900",
@@ -48,8 +48,10 @@ function BackButton({
       )}
       {...props}
     >
-      <ChevronLeft className={iconOnly ? "h-4 w-4" : "h-4 w-4"} />
-      {!iconOnly && label}
+      <div className="flex justify-center">
+        <ChevronLeft className="h-4 w-4" />
+        {!iconOnly && label}
+      </div>
     </button>
   );
 }

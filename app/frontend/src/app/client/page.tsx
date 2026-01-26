@@ -226,7 +226,7 @@ export default function ClientsAllPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-all">
+                  <div className="flex items-center gap-1 lg:opacity-0 lg:group-hover:opacity-100 transition-all">
                     <Button
                       variant="ghost"
                       size="icon"

@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { formatChileanPeso } from "@/utils/format-currency";
-import { Calendar, Pencil, Trash2, TrendingUp } from "lucide-react";
+import { Calendar, Copy, Pencil, Trash2, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
 
 type OrderLine = {
   name: string;
@@ -69,6 +70,28 @@ export default function OrderCard({
       sum + (item.pricePerUnit - item.buyPriceSupplier) * item.quantity,
     0,
   );
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const orderText = [
+      `📦 Local: ${localName}`,
+      `📅 Fecha: ${new Date(createdAt).toLocaleDateString("es-CL")}`,
+      "",
+      ...items.map(
+        (item) =>
+          `• ${item.name}: ${item.quantity} x ${formatChileanPeso(item.pricePerUnit)} = ${formatChileanPeso(item.pricePerUnit * item.quantity)}`,
+      ),
+      "",
+      `💰 *Total: ${formatChileanPeso(total)}*`,
+    ].join("\n");
+
+    try {
+      navigator.clipboard.writeText(orderText);
+      toast.success("Pedido copiado al portapapeles");
+    } catch {
+      toast.error("Error al copiar");
+    }
+  };
 
   return (
     <article
@@ -142,6 +165,13 @@ export default function OrderCard({
         <div className="flex items-center gap-3">
           {/* Botones de acción agrupados */}
           <div className="flex items-center gap-1 mr-2">
+            <button
+              onClick={handleCopy}
+              className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
+              title="Copiar detalles"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
             {onEdit && (
               <button
                 onClick={(e) => {

@@ -8,7 +8,7 @@ CREATE TABLE "clients" (
 	"localName" varchar(255),
 	"address" varchar(512),
 	"phone" varchar(20),
-	"phone_id" varchar(64) NOT NULL,
+	"phone_id" varchar(64),
 	CONSTRAINT "clients_phone_unique" UNIQUE("phone"),
 	CONSTRAINT "clients_phone_id_unique" UNIQUE("phone_id")
 );

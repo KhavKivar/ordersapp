@@ -195,9 +195,9 @@ export default function OrdersPage() {
         )}
 
         {isSuccessData && !isLoadingData && !isErrorData && (
-          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start w-full max-w-full overflow-hidden">
             {/* LADO IZQUIERDO: FORMULARIO */}
-            <div className="space-y-6">
+            <div className="space-y-6 min-w-0 w-full">
               <header className="space-y-1">
                 <h1 className="text-3xl font-black tracking-tight text-slate-900">
                   Crear Pedido Manual
@@ -209,7 +209,7 @@ export default function OrdersPage() {
 
               <form onSubmit={onSubmit} className="space-y-6">
                 {/* SELECCIÓN CLIENTE */}
-                <div className="rounded-[2rem] border-0 bg-white p-8 shadow-sm ring-1 ring-slate-100">
+                <div className="rounded-[2rem] border-0 bg-white p-8 shadow-sm ring-1 ring-slate-100 w-full overflow-hidden">
                   <Dialog open={isClientOpen} onOpenChange={setClientOpen}>
                     <DialogTrigger asChild>
                       <button
@@ -316,7 +316,7 @@ export default function OrdersPage() {
                 </div>
 
                 {/* SELECCIÓN PRODUCTO */}
-                <div className="rounded-[2rem] border-0 bg-white p-8 shadow-sm ring-1 ring-slate-100">
+                <div className="rounded-[2rem] border-0 bg-white p-8 shadow-sm ring-1 ring-slate-100 w-full overflow-hidden">
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                     <Plus className="size-4" />
                     Agregar Productos
@@ -337,13 +337,14 @@ export default function OrdersPage() {
                             <div
                               className={cn(
                                 "flex h-12 w-full items-center justify-between rounded-xl bg-slate-50 px-4 ring-1 ring-slate-200",
-                                selectProduct && "bg-indigo-50 ring-indigo-200",
+                                selectProduct &&
+                                  "bg-indigo-50 ring-indigo-200  text-overflow-ellipsis",
                               )}
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 min-w-0 flex-1">
                                 <Package
                                   className={cn(
-                                    "size-4",
+                                    "size-4 shrink-0",
                                     selectProduct
                                       ? "text-indigo-600"
                                       : "text-slate-400",
@@ -351,7 +352,7 @@ export default function OrdersPage() {
                                 />
                                 <span
                                   className={cn(
-                                    "text-sm font-medium",
+                                    "text-sm font-medium truncate block min-w-0 flex-1 text-overflow-ellipsis",
                                     selectProduct
                                       ? "text-indigo-900"
                                       : "text-slate-400",
@@ -360,7 +361,7 @@ export default function OrdersPage() {
                                   {selectProduct?.name ?? "Buscar producto..."}
                                 </span>
                               </div>
-                              <Search className="size-4 text-slate-300" />
+                              <Search className="size-4 text-slate-300 shrink-0 ml-2" />
                             </div>
                           </FormField>
                         </button>
@@ -402,11 +403,11 @@ export default function OrdersPage() {
                                       }}
                                       className="rounded-xl px-4 py-3"
                                     >
-                                      <div className="flex items-center justify-between w-full">
-                                        <span className="font-bold">
+                                      <div className="flex items-center justify-between w-full gap-4 overflow-hidden">
+                                        <span className="font-bold truncate block min-w-0 flex-1">
                                           {product.name}
                                         </span>
-                                        <span className="text-xs font-black text-indigo-600">
+                                        <span className="text-xs font-black text-indigo-600 shrink-0">
                                           {formatChileanPeso(
                                             product.sellPriceClient,
                                           )}
@@ -458,7 +459,7 @@ export default function OrdersPage() {
                     <Button
                       type="submit"
                       variant="primary"
-                      className="h-14 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700 font-bold"
+                      className="h-14 w-full rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700 font-bold"
                     >
                       <Plus className="mr-2 size-5" />
                       Agregar al Carrito
@@ -469,8 +470,8 @@ export default function OrdersPage() {
             </div>
 
             {/* LADO DERECHO: RESUMEN / SIDEBAR */}
-            <aside className="lg:sticky lg:top-24">
-              <div className="rounded-[2.5rem] border-0 bg-white shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100 overflow-hidden">
+            <aside className="lg:sticky lg:top-24 min-w-0 w-full overflow-hidden">
+              <div className="rounded-[2.5rem] border-0 bg-white shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100 overflow-hidden w-full">
                 <div className="bg-slate-900 p-6 text-white">
                   <div className="flex items-center gap-3">
                     <ShoppingCart className="size-5 text-indigo-400" />
@@ -493,29 +494,32 @@ export default function OrdersPage() {
                           key={item.productId}
                           className="group relative rounded-2xl bg-slate-50 p-4 transition-all hover:bg-white hover:ring-1 hover:ring-slate-100"
                         >
-                          <div className="flex justify-between items-start">
-                            <div className="min-w-0 pr-8">
-                              <p className="font-black text-slate-900 line-clamp-1 truncate">
+                          <div className="flex w-full justify-between items-start gap-4 overflow-hidden">
+                            <div className="min-w-0 flex-1 pr-2">
+                              <p className="font-black text-slate-900 truncate block w-full">
                                 {item.name}
                               </p>
-                              <p className="text-xs font-bold text-slate-400 mt-1">
+                              <p className="text-xs font-bold text-slate-400 mt-1 truncate block">
                                 {item.quantity} un. ×{" "}
                                 {formatChileanPeso(item.pricePerUnit)}
                               </p>
                             </div>
-                            <span className="font-black text-indigo-600">
+                            <span className="font-black text-indigo-600 shrink-0 text-right">
                               {formatChileanPeso(
                                 item.pricePerUnit * item.quantity,
                               )}
                             </span>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(item.productId)}
-                            className="absolute top-2 right-2 h-8 w-8 flex items-center justify-center rounded-full bg-rose-50 text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-600 hover:text-white shadow-sm"
-                          >
-                            <Trash2 className="size-4" />
-                          </button>
+                          <div className="mt-3 flex justify-end border-t border-slate-100/50 pt-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(item.productId)}
+                              className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-700"
+                            >
+                              <Trash2 className="size-3.5" />
+                              Eliminar item
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
