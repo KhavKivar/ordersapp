@@ -87,7 +87,7 @@ export default function PurchaseOrdersListPage() {
   const handleCopy = (order: PurchaseOrderListItem, total: number) => {
     const orderText = [
       `📦 *Orden de Compra #${order.purchaseOrderId}*`,
-      `📅 Fecha: ${new Date(order.createdAt).toLocaleDateString("es-CL")}`,
+      `🗓️ Fecha: ${new Date(order.createdAt).toLocaleDateString("es-CL")}`,
       "",
       ...order.lines.map(
         (line: PurchaseOrderLine) =>

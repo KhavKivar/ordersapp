@@ -75,7 +75,7 @@ export default function OrderCard({
     e.stopPropagation();
     const orderText = [
       `📦 Local: ${localName}`,
-      `📅 Fecha: ${new Date(createdAt).toLocaleDateString("es-CL")}`,
+      `🗓️ Fecha: ${new Date(createdAt).toLocaleDateString("es-CL")}`,
       "",
       ...items.map(
         (item) =>
