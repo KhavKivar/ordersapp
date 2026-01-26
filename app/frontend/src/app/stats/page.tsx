@@ -1,3 +1,15 @@
+import { Button } from "@/components/ui/Button/button";
+import { Card } from "@/components/ui/Card/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import { getRevenue } from "@/features/revenue/api/get-revenue";
+import type { Revenue } from "@/features/revenue/api/revenue-schema";
+import { cn } from "@/lib/utils";
+import { formatChileanPeso } from "@/utils/format-currency";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -8,17 +20,6 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-
-import { Card } from "@/components/ui/Card/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
-import { getRevenue } from "@/features/revenue/api/get-revenue";
-import type { Revenue } from "@/features/revenue/api/revenue-schema";
-import { formatChileanPeso } from "@/utils/format-currency";
 
 // --- Tipos y Constantes ---
 
@@ -163,164 +164,179 @@ export default function StatsPage() {
 
   if (error) {
     return (
-      <div className="flex h-[50vh] flex-col items-center justify-center gap-4 text-center">
-        <div className="rounded-full bg-red-100 p-4 text-red-600">
-          <AlertCircle className="h-8 w-8" />
+      <div className="flex h-[60vh] flex-col items-center justify-center gap-6 px-6 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-rose-50 text-rose-500 shadow-inner">
+          <AlertCircle className="h-10 w-10" />
         </div>
-        <div>
-          <h3 className="font-semibold text-slate-900">
-            Error al cargar datos
+        <div className="max-w-xs">
+          <h3 className="text-xl font-black text-slate-900">
+            Error de Conexión
           </h3>
-          <p className="text-sm text-slate-500">
-            No pudimos obtener la información de ingresos.
+          <p className="mt-2 font-medium text-slate-400">
+            No pudimos sincronizar los datos financieros en este momento.
           </p>
         </div>
+        <Button
+          onClick={() => window.location.reload()}
+          variant="outline"
+          className="rounded-2xl px-8"
+        >
+          Reintentar
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pb-12 pt-8 sm:pt-12 lg:pt-16">
+    <div className="min-h-screen bg-slate-50/50 pb-20">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 pt-8 sm:px-6">
         {/* HEADER */}
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-            Reporte de Ganancias
-          </h1>
-          <p className="text-slate-500">Resumen financiero semanal y diario.</p>
-        </div>
+        <header className="flex flex-col gap-2">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-200">
+              <BarChart3 className="size-6" />
+            </div>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900">
+              Métricas de Negocio
+            </h1>
+          </div>
+          <p className="text-slate-500 font-medium ml-1">
+            Análisis de rentabilidad y rendimiento de ventas.
+          </p>
+        </header>
 
         {dailyGains.length === 0 ? (
-          <Card className="flex flex-col items-center justify-center py-16 text-center border-dashed">
-            <div className="bg-slate-100 p-4 rounded-full mb-4">
-              <BarChart3 className="h-8 w-8 text-slate-400" />
+          <div className="flex flex-col items-center justify-center rounded-[3rem] border-2 border-dashed border-slate-200 bg-white/50 p-20 text-center">
+            <div className="bg-slate-100 p-6 rounded-full mb-6">
+              <BarChart3 className="h-10 w-10 text-slate-300" />
             </div>
-            <p className="font-medium text-slate-900">
-              No hay datos registrados
+            <h3 className="text-2xl font-black text-slate-900">
+              Sin estadísticas
+            </h3>
+            <p className="mt-2 text-slate-500 font-medium max-w-xs mx-auto">
+              Comienza a registrar ventas en la sección de pedidos para generar
+              reportes.
             </p>
-            <p className="text-sm text-slate-500">
-              Comienza a registrar ventas para ver estadísticas.
-            </p>
-          </Card>
+          </div>
         ) : (
           <>
-            {/* KPI CARDS */}
-            <div className="grid gap-4 sm:grid-cols-3">
+            {/* KPI CARDS - Premium Style */}
+            <div className="grid gap-6 sm:grid-cols-3">
               <KpiCard
                 title="Ganancia Total"
                 value={formatChileanPeso(kpis.totalRevenue)}
                 icon={DollarSign}
-                trend="Acumulado"
+                subtitle="Ingresos acumulados"
+                variant="indigo"
               />
               <KpiCard
-                title="Mejor Día"
+                title="Récord Diario"
                 value={formatChileanPeso(kpis.bestDay.gain)}
-                subValue={kpis.bestDay.label}
+                subtitle={kpis.bestDay.label}
                 icon={TrendingUp}
-                trend="Récord"
-                trendColor="text-emerald-600"
+                variant="emerald"
               />
               <KpiCard
-                title="Promedio Diario"
+                title="Promedio"
                 value={formatChileanPeso(kpis.averageDaily)}
                 icon={BarChart3}
-                trend="Estimado"
+                subtitle="Por jornada laboral"
+                variant="amber"
               />
             </div>
 
-            {/* CHART SECTION */}
-            <Card className="p-6 sm:p-8 rounded-3xl border-slate-200 shadow-sm">
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-slate-900">
-                  Tendencia Semanal
+            {/* CHART SECTION - Modern & Floating */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between px-2">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">
+                  Evolución Semanal
                 </h3>
-                <p className="text-sm text-slate-500">
-                  Comparativa de ingresos por semana
-                </p>
               </div>
-
-              <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <BarChart
-                  data={weeklyGains}
-                  margin={{ top: 20, right: 0, left: 0, bottom: 0 }}
+              <Card className="p-8 rounded-[2.5rem] border-0 bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100">
+                <ChartContainer
+                  config={chartConfig}
+                  className="h-[320px] w-full"
                 >
-                  <CartesianGrid
-                    vertical={false}
-                    strokeDasharray="3 3"
-                    stroke="#e2e8f0"
-                  />
-                  <XAxis
-                    dataKey="label"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={12}
-                    fontSize={12}
-                    tick={{ fill: "#64748b" }}
-                    minTickGap={30}
-                  />
-                  <YAxis
-                    hide // Ocultamos el eje Y para limpieza visual (el tooltip da el dato exacto)
-                  />
-                  <ChartTooltip
-                    cursor={{ fill: "rgba(249, 115, 22, 0.1)", radius: 4 }}
-                    content={
-                      <ChartTooltipContent
-                        className="bg-white border-slate-200 shadow-xl"
-                        formatter={(value) => (
-                          <span className="font-bold text-slate-900">
-                            {formatChileanPeso(Number(value))}
-                          </span>
-                        )}
-                      />
-                    }
-                  />
-                  <Bar
-                    dataKey="gain"
-                    fill="var(--color-gain)"
-                    radius={[6, 6, 0, 0]}
-                    maxBarSize={60}
-                  />
-                </BarChart>
-              </ChartContainer>
-            </Card>
-
-            {/* LISTA DETALLADA */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-slate-900 px-1">
-                Detalle Diario
-              </h3>
-              <Card className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <div className="divide-y divide-slate-100">
-                  {dailyGains.map((entry) => (
-                    <div
-                      key={entry.label}
-                      className="flex items-center justify-between px-6 py-4 transition-colors hover:bg-slate-50/50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
-                          <Calendar className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-900 capitalize">
-                            {entry.date.toLocaleDateString("es-CL", {
-                              weekday: "long",
-                              day: "numeric",
-                              month: "long",
-                            })}
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            Registro manual
-                          </p>
-                        </div>
-                      </div>
-                      <span className="font-mono font-semibold text-slate-900">
-                        {formatChileanPeso(entry.gain)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                  <BarChart
+                    data={weeklyGains}
+                    margin={{ top: 20, right: 0, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      vertical={false}
+                      strokeDasharray="4 4"
+                      stroke="#f1f5f9"
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={16}
+                      fontSize={11}
+                      fontWeight={700}
+                      tick={{ fill: "#94a3b8" }}
+                    />
+                    <YAxis hide />
+                    <ChartTooltip
+                      cursor={{ fill: "rgba(79, 70, 229, 0.05)", radius: 12 }}
+                      content={
+                        <ChartTooltipContent
+                          className="bg-slate-900 border-0 text-white shadow-2xl rounded-2xl p-4"
+                          formatter={(value) => (
+                            <span className="text-lg font-black text-white">
+                              {formatChileanPeso(Number(value))}
+                            </span>
+                          )}
+                        />
+                      }
+                    />
+                    <Bar
+                      dataKey="gain"
+                      fill="#4f46e5"
+                      radius={[12, 12, 4, 4]}
+                      maxBarSize={50}
+                    />
+                  </BarChart>
+                </ChartContainer>
               </Card>
-            </div>
+            </section>
+
+            {/* LISTA DETALLADA - Clean Feed */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between px-2">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">
+                  Desglose por Jornada
+                </h3>
+              </div>
+              <div className="grid gap-3">
+                {dailyGains.map((entry) => (
+                  <Card
+                    key={entry.label}
+                    className="flex items-center justify-between px-6 py-5 rounded-2xl border-0 bg-white ring-1 ring-slate-100 transition-all hover:ring-2 hover:ring-indigo-100/50 active:scale-[0.99]"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                        <Calendar className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900 capitalize leading-none">
+                          {entry.date.toLocaleDateString("es-CL", {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long",
+                          })}
+                        </p>
+                        <p className="mt-1.5 text-xs font-black uppercase tracking-widest text-slate-300">
+                          Operación diaria
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xl font-black tracking-tight text-slate-900">
+                      {formatChileanPeso(entry.gain)}
+                    </span>
+                  </Card>
+                ))}
+              </div>
+            </section>
           </>
         )}
       </div>
@@ -330,33 +346,64 @@ export default function StatsPage() {
 
 // --- Sub-componentes Visuales ---
 
+type KpiCardProps = {
+  title: string;
+  value: string;
+  subtitle?: string;
+  icon: React.ElementType;
+  variant: "indigo" | "emerald" | "amber";
+};
+
+const VARIANT_STYLES = {
+  indigo: {
+    bg: "bg-indigo-50",
+    text: "text-indigo-600",
+    ring: "hover:ring-indigo-100",
+  },
+  emerald: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-600",
+    ring: "hover:ring-emerald-100",
+  },
+  amber: {
+    bg: "bg-amber-50",
+    text: "text-amber-600",
+    ring: "hover:ring-amber-100",
+  },
+};
+
 function KpiCard({
   title,
   value,
-  subValue,
+  subtitle,
   icon: Icon,
-  trend,
-  trendColor = "text-slate-500",
-}: any) {
+  variant,
+}: KpiCardProps) {
+  const styles = VARIANT_STYLES[variant];
+
   return (
-    <Card className="relative overflow-hidden p-6 rounded-3xl border-slate-200 shadow-sm transition-all hover:shadow-md">
+    <Card
+      className={cn(
+        "relative overflow-hidden p-6 rounded-[2rem] border-0 bg-white shadow-sm ring-1 ring-slate-100 transition-all hover:shadow-xl hover:shadow-slate-200/50",
+        styles.ring,
+      )}
+    >
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <h3 className="mt-2 text-2xl font-bold text-slate-900">{value}</h3>
-          {subValue && (
-            <p className="text-xs text-slate-400 mt-1">{subValue}</p>
+        <div className="space-y-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+            {title}
+          </p>
+          <div className="text-2xl font-black text-slate-900">{value}</div>
+          {subtitle && (
+            <p className="text-xs font-bold text-slate-500/80">{subtitle}</p>
           )}
         </div>
-        <div className="rounded-xl bg-orange-50 p-2 text-orange-600">
-          <Icon className="h-5 w-5" />
+        <div
+          className={cn("rounded-2xl p-3 shadow-inner", styles.bg, styles.text)}
+        >
+          <Icon className="h-6 w-6" />
         </div>
       </div>
-      {trend && (
-        <div className="mt-4 flex items-center gap-1 text-xs font-medium">
-          <span className={trendColor}>{trend}</span>
-        </div>
-      )}
     </Card>
   );
 }

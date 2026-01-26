@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  AlertCircle,
   Loader2,
   MapPin,
   PencilLine,
@@ -8,6 +9,7 @@ import {
   Plus,
   Store,
   Trash2,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -79,7 +81,7 @@ export default function ClientsAllPage() {
     mutationFn: (payload: { id: number | string; data: UpdateClientDto }) =>
       updateClient(payload.id, payload.data),
     onSuccess: () => {
-      toast.success("Cliente actualizado");
+      toast.success("Cliente actualizado correctamente");
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       setEditOpen(false);
       setEditingClient(null);
@@ -96,7 +98,7 @@ export default function ClientsAllPage() {
   const deleteMutation = useMutation({
     mutationFn: deleteClient,
     onSuccess: () => {
-      toast.success("Cliente eliminado");
+      toast.success("Cliente eliminado correctamente");
       queryClient.invalidateQueries({ queryKey: ["clients"] });
     },
     onError: (mutationError) => {
@@ -117,8 +119,6 @@ export default function ClientsAllPage() {
     if (deleteMutation.isPending) {
       return;
     }
-    console.log(client.id);
-
     deleteMutation.mutate(client.id);
   };
 
@@ -139,83 +139,101 @@ export default function ClientsAllPage() {
   const hasClients = clients.length > 0;
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 pb-12 pt-6 sm:px-6 sm:pt-12">
-        {/* HEADER: Adaptable de móvil a desktop */}
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="min-h-screen bg-slate-50/50 pb-20">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 pt-8 sm:px-6">
+        {/* HEADER: Modern & Categorized */}
+        <header className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-200">
+              <Users className="size-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-slate-900">
+                Directorio de Clientes
+              </h1>
+              <p className="text-sm font-medium text-slate-500">
+                {clients.length} locales registrados
+              </p>
+            </div>
+          </div>
+
           <Button
             variant="primary"
             onClick={() => navigate("/client/new")}
-            className="h-12 w-full rounded-2xl shadow-md shadow-emerald-100 sm:h-10 sm:w-auto sm:px-6"
+            className="group h-12 w-full rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-200 transition-all hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] sm:h-11 sm:w-auto sm:px-8"
           >
-            <Plus className="mr-2 size-5 sm:size-4" />
-            Nuevo cliente
+            <Plus className="mr-2 size-5 transition-transform group-hover:rotate-90" />
+            Nuevo Cliente
           </Button>
         </header>
 
         {/* CONTENIDO PRINCIPAL */}
-        <section className="grid gap-4">
+        <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
           {isPending && (
-            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-              <Loader2 className="size-8 animate-spin text-emerald-500" />
-              <p className="mt-2 font-medium">Cargando clientes...</p>
+            <div className="col-span-full flex flex-col items-center justify-center py-24 text-slate-400">
+              <Loader2 className="size-10 animate-spin text-amber-500 mb-4" />
+              <p className="font-bold">Cargando directorio...</p>
             </div>
           )}
 
           {error && (
-            <div className="rounded-3xl border border-rose-100 bg-rose-50 p-8 text-center text-rose-600">
-              <p className="font-semibold">
-                Ocurrió un error al cargar los datos.
+            <div className="col-span-full rounded-[2.5rem] border border-rose-100 bg-rose-50 p-12 text-center text-rose-600">
+              <AlertCircle className="mx-auto size-10 mb-4 opacity-50" />
+              <p className="font-bold">Error al cargar clientes</p>
+              <p className="mt-1 text-sm opacity-80">
+                Por favor intenta de nuevo más tarde.
               </p>
             </div>
           )}
 
           {/* ESTADO VACÍO */}
           {!isPending && !error && !hasClients && (
-            <Card className="flex flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-slate-200 bg-transparent p-12 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                <Store className="size-8" />
+            <div className="col-span-full flex flex-col items-center justify-center rounded-[3rem] border-2 border-dashed border-slate-200 bg-white/50 p-20 text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 text-slate-300 mb-6">
+                <Store className="size-10" />
               </div>
-              <h3 className="mt-4 text-lg font-bold text-slate-900">
+              <h3 className="text-2xl font-black text-slate-900">
                 Sin clientes aún
               </h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Agrega tu primer local comercial para empezar.
+              <p className="mt-2 text-slate-500 font-medium max-w-xs mx-auto">
+                Registra tu primer local comercial para empezar a tomar pedidos.
               </p>
-            </Card>
+            </div>
           )}
 
           {/* LISTADO DE TARJETAS */}
           {clients.map((client) => (
             <Card
               key={client.id}
-              className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-5 transition-all active:scale-[0.98] sm:p-6 sm:hover:border-emerald-200 sm:hover:shadow-lg"
+              className="group relative flex flex-col overflow-hidden rounded-[2.5rem] border-0 bg-white p-6 shadow-sm ring-1 ring-slate-100 transition-all hover:shadow-xl hover:shadow-slate-200/50"
             >
-              <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-6">
                 {/* Top: Nombre y Acciones */}
                 <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
-                      <Store className="size-5" />
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 transition-colors group-hover:bg-amber-600 group-hover:text-white">
+                      <Store className="size-6" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
-                        Local Comercial
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600/80">
+                        {client.address && client.address.includes("Chile")
+                          ? "Cliente Nacional"
+                          : "Local Comercial"}
                       </span>
-                      <h3 className="text-lg font-bold leading-tight text-slate-900 text-left">
-                        {client.localName || "Cliente"}
+                      <h3 className="text-xl font-black leading-tight text-slate-900 text-left line-clamp-1">
+                        {client.localName || "Cliente sin nombre"}
                       </h3>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-all">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-10 w-10 rounded-full text-slate-400 hover:bg-slate-100 sm:h-9 sm:w-9"
+                      className="h-9 w-9 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
                       onClick={() => handleEdit(client)}
                     >
-                      <PencilLine className="size-5 sm:size-4" />
+                      <PencilLine className="size-4" />
                     </Button>
 
                     <Dialog>
@@ -223,32 +241,36 @@ export default function ClientsAllPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-10 w-10 rounded-full text-rose-400 hover:bg-rose-50 hover:text-rose-600 sm:h-9 sm:w-9"
+                          className="h-9 w-9 rounded-full bg-slate-50 text-rose-400 hover:bg-rose-50 hover:text-rose-600"
                         >
-                          <Trash2 className="size-5 sm:size-4" />
+                          <Trash2 className="size-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="w-[90vw] max-w-md rounded-[2rem]">
-                        <DialogHeader>
-                          <DialogTitle>¿Eliminar cliente?</DialogTitle>
-                          <DialogDescription>
-                            Se borrarán todos los datos de{" "}
-                            <strong>{client.localName}</strong>. Esta acción es
-                            irreversible.
+                      <DialogContent className="fixed inset-0 z-50 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-md sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2rem] sm:border sm:shadow-2xl overflow-hidden">
+                        <DialogHeader className="p-8 pb-4 text-left">
+                          <DialogTitle className="text-2xl font-black text-slate-900">
+                            ¿Eliminar cliente?
+                          </DialogTitle>
+                          <DialogDescription className="text-base font-medium text-slate-500">
+                            Se borrarán todos los datos históricos de{" "}
+                            <span className="text-slate-900 font-bold">
+                              {client.localName}
+                            </span>
+                            . Esta acción no se puede deshacer.
                           </DialogDescription>
                         </DialogHeader>
-                        <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row">
+                        <DialogFooter className="mt-auto border-t border-slate-100 p-8 flex flex-col gap-3 sm:mt-0 sm:border-0 sm:flex-row">
                           <DialogClose asChild>
                             <Button
                               variant="outline"
-                              className="w-full rounded-xl sm:w-auto"
+                              className="h-14 rounded-2xl font-bold sm:h-12 flex-1"
                             >
                               Cancelar
                             </Button>
                           </DialogClose>
                           <Button
                             variant="destructive"
-                            className="w-full rounded-xl sm:w-auto"
+                            className="h-14 rounded-2xl font-bold bg-rose-600 sm:h-12 flex-1"
                             onClick={() => handleDelete(client)}
                           >
                             Eliminar
@@ -260,26 +282,31 @@ export default function ClientsAllPage() {
                 </div>
 
                 {/* Info: Teléfono y Dirección */}
-                <div className="grid grid-cols-1 gap-3 rounded-2xl bg-slate-50 p-4 sm:grid-cols-2 sm:gap-6">
-                  <div className="flex items-center gap-3">
-                    <Phone className="size-4 text-slate-400" />
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold uppercase tracking-tighter text-muted-foreground text-left">
-                        Teléfono
+                <div className="grid grid-cols-1 gap-2 rounded-[1.5rem] bg-slate-50/80 p-5 ring-1 ring-slate-100/50">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm">
+                      <Phone className="size-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-left mb-0.5">
+                        Contacto
                       </p>
-                      <p className="truncate text-sm font-semibold text-slate-700">
+                      <p className="truncate text-base font-black text-slate-900 text-left">
                         {client.phone || "No registrado"}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <MapPin className="size-4 text-slate-400" />
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold uppercase tracking-tighter text-muted-foreground text-left">
-                        Dirección
+                  <div className="h-px bg-slate-200/50 my-1 mx-2" />
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm">
+                      <MapPin className="size-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-left mb-0.5">
+                        Ubicación
                       </p>
-                      <p className="truncate text-sm font-medium text-slate-600">
-                        {client.address || "No registrada"}
+                      <p className="truncate text-base font-bold text-slate-600 text-left">
+                        {client.address || "Sin dirección registrada"}
                       </p>
                     </div>
                   </div>
@@ -298,45 +325,60 @@ export default function ClientsAllPage() {
           if (!open) setEditingClient(null);
         }}
       >
-        <DialogContent className="fixed bottom-0 top-auto flex max-h-[90vh] w-full max-w-none flex-col rounded-t-[2rem] p-0 sm:relative sm:bottom-auto sm:max-w-lg sm:rounded-[2rem]">
-          <DialogHeader className="px-6 pt-6 text-left">
-            <DialogTitle className="text-xl font-bold">
+        <DialogContent className="fixed inset-0 z-50 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2rem] sm:border sm:shadow-2xl overflow-hidden">
+          <DialogHeader className="p-8 pb-4 text-left">
+            <DialogTitle className="text-2xl font-black text-slate-900">
               Editar Cliente
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-base font-medium text-slate-500">
               Modifica los datos del local seleccionado.
             </DialogDescription>
           </DialogHeader>
 
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col p-6 pt-2"
+            className="flex flex-1 flex-col"
           >
-            <div className="space-y-4 pb-6">
+            <div className="flex-1 space-y-6 px-8 py-4">
               <FormField
                 label="Nombre del Local"
                 error={errors.localName?.message}
+                labelClassName="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2"
               >
-                <Input {...register("localName")} className="h-12 rounded-xl" />
+                <Input
+                  {...register("localName")}
+                  className="h-14 rounded-2xl bg-slate-50 border-0 ring-1 ring-slate-200"
+                />
               </FormField>
-              <FormField label="Dirección" error={errors.address?.message}>
-                <Input {...register("address")} className="h-12 rounded-xl" />
+              <FormField
+                label="Dirección"
+                error={errors.address?.message}
+                labelClassName="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2"
+              >
+                <Input
+                  {...register("address")}
+                  className="h-14 rounded-2xl bg-slate-50 border-0 ring-1 ring-slate-200"
+                />
               </FormField>
-              <FormField label="Teléfono" error={errors.phone?.message}>
+              <FormField
+                label="Teléfono"
+                error={errors.phone?.message}
+                labelClassName="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2"
+              >
                 <Input
                   {...register("phone")}
                   inputMode="tel"
-                  className="h-12 rounded-xl"
+                  className="h-14 rounded-2xl bg-slate-50 border-0 ring-1 ring-slate-200"
                 />
               </FormField>
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <div className="mt-auto border-t border-slate-100 p-8 flex flex-col gap-3 sm:mt-0 sm:border-0 sm:flex-row sm:justify-end">
               <DialogClose asChild>
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-12 rounded-xl sm:h-10"
+                  className="h-14 rounded-2xl font-bold sm:h-12 sm:px-8"
                 >
                   Cancelar
                 </Button>
@@ -344,7 +386,7 @@ export default function ClientsAllPage() {
               <Button
                 type="submit"
                 variant="primary"
-                className="h-12 rounded-xl sm:h-10"
+                className="h-14 rounded-2xl font-bold bg-slate-900 sm:h-12 sm:px-8"
                 disabled={updateMutation.isPending}
               >
                 {updateMutation.isPending ? "Guardando..." : "Guardar Cambios"}

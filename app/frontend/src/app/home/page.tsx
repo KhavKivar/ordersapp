@@ -1,9 +1,9 @@
 import {
-  ArrowRight,
   BarChart3,
+  ChevronRight,
+  ClipboardList,
   Package,
   ShoppingBag,
-  Store,
   Users,
 } from "lucide-react";
 import { useEffect } from "react";
@@ -13,23 +13,22 @@ import { toast } from "sonner";
 import { Card } from "@/components/ui/Card/card";
 import { cn } from "@/lib/utils";
 
-// Definimos las opciones del menú para iterar limpiamente
 const DASHBOARD_ITEMS = [
   {
-    title: "Pedidos",
+    title: "Ventas (Pedidos)",
     description: "Gestionar pedidos de clientes",
     icon: ShoppingBag,
     href: "/order",
-    color: "text-blue-600",
-    bgColor: "bg-blue-50 border-blue-100",
+    color: "text-rose-600",
+    bgColor: "bg-rose-50 border-rose-100",
   },
   {
     title: "Clientes",
-    description: "Directorio de locales",
+    description: "Directorio de locales y rutas",
     icon: Users,
     href: "/client",
-    color: "text-orange-600",
-    bgColor: "bg-orange-50 border-orange-100",
+    color: "text-amber-600",
+    bgColor: "bg-amber-50 border-amber-100",
   },
   {
     title: "Compras",
@@ -41,7 +40,7 @@ const DASHBOARD_ITEMS = [
   },
   {
     title: "Estadísticas",
-    description: "Reportes y métricas",
+    description: "Reportes de ingresos y KPIs",
     icon: BarChart3,
     href: "/stats",
     color: "text-emerald-600",
@@ -53,8 +52,6 @@ export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Lógica mejorada del Toast:
-  // Usamos useEffect para detectar el mensaje una sola vez al montar
   useEffect(() => {
     if (
       location.state &&
@@ -62,85 +59,92 @@ export default function Home() {
       "toast" in location.state
     ) {
       const message = (location.state as { toast: string }).toast;
-
-      // Pequeño delay para que se vea la animación de entrada si vienes de otra página
       setTimeout(() => toast.success(message), 100);
-
-      // Limpiamos el state para que no aparezca de nuevo al refrescar
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 pb-12 pt-8 sm:pt-12 lg:pt-16">
+    <div className="min-h-screen bg-slate-50/50 pb-12">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 pt-8 sm:px-6">
+        {/* WELCOME SECTION */}
+        <div className="space-y-1">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900">
+            Panel de Control
+          </h2>
+          <p className="text-slate-500 font-medium">
+            Bienvenido a Vasvani App. ¿Qué quieres hacer hoy?
+          </p>
+        </div>
+
         {/* ACCIONES RÁPIDAS (GRID) */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {DASHBOARD_ITEMS.map((item) => (
             <Card
               key={item.title}
               onClick={() => navigate(item.href)}
               className={cn(
-                "group relative cursor-pointer overflow-hidden rounded-3xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-md",
-                "bg-white border-slate-200", // Base style
+                "group relative cursor-pointer overflow-hidden rounded-[2rem] border-0 p-6 transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 active:scale-[0.98]",
+                "bg-white ring-1 ring-slate-100",
               )}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-5">
                   <div
                     className={cn(
-                      "flex h-12 w-12 items-center justify-center rounded-2xl border transition-colors",
+                      "flex h-14 w-14 items-center justify-center rounded-2xl border transition-all duration-300 group-hover:scale-110",
                       item.bgColor,
                     )}
                   >
-                    <item.icon className={cn("h-6 w-6", item.color)} />
+                    <item.icon className={cn("h-7 w-7", item.color)} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 group-hover:text-slate-700 text-left">
+                    <h3 className="text-lg font-bold text-slate-900 text-left">
                       {item.title}
                     </h3>
-                    <p className="text-sm text-slate-500">{item.description}</p>
+                    <p className="text-sm font-medium text-slate-400 group-hover:text-slate-500 transition-colors">
+                      {item.description}
+                    </p>
                   </div>
                 </div>
 
-                {/* Flecha que aparece al hacer hover */}
-                <div className="opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <ArrowRight className="h-5 w-5 text-slate-400" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-300 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
+                  <ChevronRight className="h-5 w-5" />
                 </div>
               </div>
             </Card>
           ))}
         </div>
 
-        {/* SECCIÓN RESUMEN (Opcional - Ejemplo visual) */}
-        <Card className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-2 text-slate-500 mb-4">
-            <Store className="h-4 w-4" />
-            <span className="text-xs font-bold uppercase tracking-wider">
-              Estado del Sistema
+        {/* SECCIÓN RESUMEN RÁPIDO */}
+        <div className="rounded-[2.5rem] bg-indigo-600 p-8 text-white shadow-2xl shadow-indigo-200 transition-transform hover:scale-[1.01]">
+          <div className="flex items-center gap-3 opacity-80 mb-6">
+            <ClipboardList className="h-5 w-5" />
+            <span className="text-xs font-black uppercase tracking-[0.2em]">
+              Estado del Negocio
             </span>
           </div>
-          <div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            <div className="px-4 py-2 text-center sm:text-left">
-              <span className="block text-2xl font-bold text-slate-900">
-                --
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+            <div className="space-y-1 text-center sm:text-left">
+              <span className="block text-4xl font-black">--</span>
+              <span className="text-sm font-bold text-indigo-100/70 uppercase tracking-wider">
+                Pedidos Hoy
               </span>
-              <span className="text-xs text-slate-500">Pedidos Hoy</span>
             </div>
-            <div className="px-4 py-2 text-center sm:text-left">
-              <span className="block text-2xl font-bold text-slate-900">
-                --
+            <div className="space-y-1 text-center sm:text-left border-y border-white/10 py-6 sm:border-y-0 sm:border-x sm:px-8 sm:py-0">
+              <span className="block text-4xl font-black">--</span>
+              <span className="text-sm font-bold text-indigo-100/70 uppercase tracking-wider">
+                Ventas Mes
               </span>
-              <span className="text-xs text-slate-500">Por Despachar</span>
             </div>
-            <div className="px-4 py-2 text-center sm:text-left">
-              <span className="block text-2xl font-bold text-slate-900">
-                --
+            <div className="space-y-1 text-center sm:text-left">
+              <span className="block text-4xl font-black">--</span>
+              <span className="text-sm font-bold text-indigo-100/70 uppercase tracking-wider">
+                Crecimiento
               </span>
-              <span className="text-xs text-slate-500">Clientes Activos</span>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

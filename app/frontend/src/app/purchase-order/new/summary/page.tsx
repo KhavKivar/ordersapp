@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import {
   CheckCircle2,
-  ChevronLeft,
   ChevronRight,
   Clock,
   Info,
@@ -88,40 +87,28 @@ export default function PurchaseOrderSummaryPage() {
     });
   };
 
-  const handleBackToSelect = () => {
-    navigate("/purchase-order/new/select");
-  };
-
   return (
     <div className="space-y-8 pb-32 sm:pb-10">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-            Confirmar Orden
-          </h1>
-          <p className="mt-1 text-slate-500">
-            Revisa el consolidado de productos antes de generar la orden de
-            compra.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          onClick={handleBackToSelect}
-          className="rounded-xl"
-        >
-          <ChevronLeft className="mr-2 size-4" />
-          Cambiar pedidos
-        </Button>
+      <div className="flex flex-col gap-4">
+        <h1 className="text-2xl font-black text-slate-900 sm:text-3xl">
+          Confirmar Orden
+        </h1>
+        <p className="text-slate-500 font-medium">
+          Revisa el consolidado de productos antes de generar la orden de
+          compra.
+        </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
         {/* COLUMNA IZQUIERDA: CONSOLIDADO */}
         <section className="space-y-6 lg:col-span-7">
-          <Card className="overflow-hidden rounded-3xl border-0 shadow-sm ring-1 ring-slate-200">
-            <div className="bg-slate-900 px-6 py-4 text-white">
+          <Card className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
+            <div className="border-b border-slate-100 px-6 py-4">
               <div className="flex items-center gap-2">
-                <ShoppingBag className="size-5 text-indigo-400" />
-                <h2 className="text-lg font-bold">Consolidado de Productos</h2>
+                <ShoppingBag className="size-5 text-indigo-600" />
+                <h2 className="text-lg font-bold text-slate-900">
+                  Consolidado de Productos
+                </h2>
               </div>
             </div>
 

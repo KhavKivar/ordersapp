@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import { Check, ChevronRight } from "lucide-react";
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 
 export default function PurchaseOrderNewLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isSummary = location.pathname.includes("summary");
 
   const steps = [
@@ -30,12 +31,15 @@ export default function PurchaseOrderNewLayout() {
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div
+                  onClick={() =>
+                    step.completed && navigate("/purchase-order/new/select")
+                  }
                   className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all duration-300",
                     step.active
                       ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
                       : step.completed
-                        ? "text-emerald-600 bg-emerald-50"
+                        ? "text-emerald-600 bg-emerald-50 cursor-pointer hover:bg-emerald-100"
                         : "text-slate-400",
                   )}
                 >
