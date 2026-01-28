@@ -1,9 +1,10 @@
-import { db } from "../db/index.js";
-import { products } from "../db/schema.js";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { products } from "../../db/schema.js";
+import { Product } from "./products.schema.js";
 
-type Product = typeof products.$inferSelect;
-
-export async function listProducts(): Promise<Product[]> {
+export async function listProducts(
+  db: NodePgDatabase<Record<string, never>>,
+): Promise<Product[]> {
   return db
     .select({
       id: products.id,

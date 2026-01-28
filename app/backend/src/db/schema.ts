@@ -10,7 +10,7 @@ export const clients = pgTable("clients", {
 	localName: varchar({ length: 255 }),
 	address: varchar({ length: 512 }),
 	phone: varchar({ length: 20 }),
-	phoneId: varchar("phone_id", { length: 64 }).notNull(),
+	phoneId: varchar("phone_id", { length: 64 }),
 }, (table) => [
 	unique("clients_phone_unique").on(table.phone),
 	unique("clients_phone_id_unique").on(table.phoneId),

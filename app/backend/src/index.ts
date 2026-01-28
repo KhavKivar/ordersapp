@@ -1,13 +1,26 @@
 import cors from "@fastify/cors";
 import Fastify from "fastify";
-import { clientsRoutes } from "./routes/clients.js";
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from "fastify-type-provider-zod";
+
 import { sayHello } from "./routes/hello.js";
 import { ordersRoutes } from "./routes/orders.js";
-import { productsRoutes } from "./routes/products.js";
+
 import { purchaseOrdersRoutes } from "./routes/purchase_orders.js";
 import { revenueRoutes } from "./routes/revenue.js";
 
-const fastify = Fastify({ logger: true });
+import { clientsRoutes } from "./modules/clients/index.js";
+import { productsRoutes } from "./modules/products/index.js";
+import dbPlugin from "./plugins/db.js";
+
+import sensiblePlugin from "./plugins/sensible.js";
+
+export const fastify = Fastify({ logger: true });
+
+fastify.setValidatorCompiler(validatorCompiler);
+fastify.setSerializerCompiler(serializerCompiler);
 
 await fastify.register(cors, {
   origin: [
@@ -21,9 +34,12 @@ await fastify.register(cors, {
   credentials: true,
 });
 
+await fastify.register(dbPlugin);
+await fastify.register(sensiblePlugin);
 await fastify.register(productsRoutes);
+
 await fastify.register(ordersRoutes);
-await fastify.register(clientsRoutes);
+await fastify.register(clientsRoutes, { prefix: "/clients" });
 await fastify.register(sayHello);
 await fastify.register(purchaseOrdersRoutes);
 await fastify.register(revenueRoutes);
