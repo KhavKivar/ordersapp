@@ -14,11 +14,13 @@
     "generate-migration": "npx drizzle-kit generate --custom --name",
     "reset": "docker compose down -v && docker compose up -d && drizzle-kit migrate",
     "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",
     "@types/pg": "^8.16.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "drizzle-kit": "^0.31.8",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
@@ -30,7 +32,6 @@
     "@fastify/autoload": "^6.3.1",
     "@fastify/cors": "^11.2.0",
     "@fastify/postgres": "^6.0.2",
-    "@fastify/sensible": "^6.0.4",
     "@fastify/type-provider-typebox": "^6.1.0",
     "@google/genai": "^1.37.0",
     "@langchain/core": "^1.1.15",

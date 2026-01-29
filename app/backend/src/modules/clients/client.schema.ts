@@ -57,9 +57,10 @@ export const clientCreateDto = {
     phoneId: z.string().nullable(),
   }),
   response: {
-    200: z.object({
+    201: z.object({
       client: clientSchema,
     }),
+
     400: z.object({
       statusCode: z.number(),
       error: z.string(),

@@ -1,9 +1,12 @@
 import type { FastifyInstance } from "fastify";
+import { ConflictError, NotFoundError } from "../../utils/error.js";
 import {
   clientByPhoneDto,
   clientByPhoneIdDto,
   clientCreateDto,
+  clientUpdateDto,
   CreateClientInput,
+  UpdateClientInput,
 } from "./client.schema.js";
 import { ClientService } from "./client.service.js";
 
@@ -17,9 +20,10 @@ export async function clientsRoutes(fastify: FastifyInstance) {
       const { phone } = request.params as { phone: string };
       const client = await clientService.getClientByPhone(phone);
       if (!client) {
-        throw reply.notFound("Client not found");
+        throw new NotFoundError("Client not found by phone");
       }
-      return { client };
+
+      return reply.status(200).send({ client });
     },
   );
 
@@ -35,19 +39,20 @@ export async function clientsRoutes(fastify: FastifyInstance) {
       const { phoneId } = request.params as { phoneId: string };
       const client = await clientService.getClientByPhoneId(phoneId);
       if (!client) {
-        throw reply.notFound("Client not found");
+        throw new NotFoundError("Client not found by phoneId");
       }
       return { client };
     },
   );
+
   fastify.post("/", { schema: clientCreateDto }, async (request, reply) => {
     const body = request.body as CreateClientInput;
     try {
       const created = await clientService.createClient(body);
-      return { client: created };
+      return reply.status(201).send({ client: created });
     } catch (error: any) {
       if (error.message === "CLIENT_EXISTS") {
-        throw reply.conflict(
+        throw new ConflictError(
           "A client with this phone or phoneId already exists",
         );
       }
@@ -55,102 +60,30 @@ export async function clientsRoutes(fastify: FastifyInstance) {
     }
   });
 
-  //   fastify.post("/clients", async (request, reply) => {
-  //     const body = request.body as {
-  //       localName?: string;
-  //       address?: string;
-  //       phone?: string;
-  //       phoneId?: string;
-  //     };
+  fastify.patch("/:id", { schema: clientUpdateDto }, async (request, reply) => {
+    const { id } = request.params as { id: number };
+    const body = request.body as UpdateClientInput;
+    try {
+      const updated = await clientService.updateClient(id, body);
+      return { client: updated };
+    } catch (error: any) {
+      if (error.message === "CLIENT_NOT_FOUND") {
+        throw new NotFoundError("Client not found");
+      }
+      throw error;
+    }
+  });
 
-  //     const phoneId = body?.phoneId?.trim();
-  //     if (!phoneId) {
-  //       return reply.status(400).send({ error: "phoneId is required" });
-  //     }
-
-  //     const created = await findOrCreateClient({
-  //       localName: body?.localName,
-  //       address: body?.address,
-  //       phone: body?.phone ?? "",
-  //       phoneId,
-  //     });
-
-  //     return { client: created };
-  //   });
-
-  //   fastify.delete("/clients/:id", async (request, reply) => {
-  //     const id = Number((request.params as { id?: string }).id);
-  //     if (!id) {
-  //       return reply.status(400).send({ error: "id is required" });
-  //     }
-
-  //     const deleted = await deleteClient(id);
-
-  //     if (!deleted) {
-  //       return reply.status(404).send({ error: "client not found" });
-  //     }
-
-  //     return { client: deleted };
-  //   });
-
-  //   fastify.patch("/clients/:id", async (request, reply) => {
-  //     const id = Number((request.params as { id?: string }).id);
-  //     if (!id) {
-  //       return reply.status(400).send({ error: "id is required" });
-  //     }
-
-  //     const body = request.body as {
-  //       localName?: string;
-  //       address?: string;
-  //       phone?: string;
-  //       phoneId?: string;
-  //     };
-
-  //     const updates: {
-  //       localName?: string;
-  //       address?: string;
-  //       phone?: string;
-  //       phoneId?: string;
-  //     } = {};
-
-  //     if (typeof body?.localName === "string") {
-  //       updates.localName = body.localName.trim();
-  //     }
-
-  //     if (typeof body?.address === "string") {
-  //       updates.address = body.address.trim();
-  //     }
-
-  //     if (typeof body?.address === "string") {
-  //       updates.address = body.address.trim();
-  //     }
-
-  //     if (typeof body?.phone === "string") {
-  //       const phone = body.phone.trim();
-  //       if (!phone) {
-  //         return reply.status(400).send({ error: "phone is required" });
-  //       }
-  //       updates.phone = phone;
-  //     }
-
-  //     if (typeof body?.phoneId === "string") {
-  //       const phoneId = body.phoneId.trim();
-  //       if (!phoneId) {
-  //         return reply.status(400).send({ error: "phoneId is required" });
-  //       }
-  //       updates.phoneId = phoneId;
-  //     }
-
-  //     if (Object.keys(updates).length === 0) {
-  //       return reply.status(400).send({ error: "no fields to update" });
-  //     }
-
-  //     const updated = await updateClient(id, updates);
-
-  //     if (!updated) {
-  //       return reply.status(404).send({ error: "client not found" });
-  //     }
-
-  //     return { client: updated };
-  //   });
+  fastify.delete("/:id", async (request, reply) => {
+    const { id } = request.params as { id: number };
+    try {
+      const deleted = await clientService.deleteClient(id);
+      return { client: deleted };
+    } catch (error: any) {
+      if (error.message === "CLIENT_NOT_FOUND") {
+        throw new NotFoundError("Client not found");
+      }
+      throw error;
+    }
+  });
 }

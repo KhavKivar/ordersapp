@@ -1,14 +1,17 @@
 import { sql } from "drizzle-orm";
 import Fastify from "fastify";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+
 import { ClientService } from "./client.service.js";
 
 describe("Client Service", () => {
   let app: Fastify.FastifyInstance;
+  let clientService: ClientService;
 
   beforeAll(async () => {
     app = Fastify();
     app.decorate("db", (await import("../../db/index.js")).db); // gets the mocked one
+    clientService = new ClientService(app.db);
   });
 
   beforeEach(async () => {
@@ -16,7 +19,6 @@ describe("Client Service", () => {
   });
 
   it("should create a client", async () => {
-    const clientService = new ClientService(app.db);
     const client = await clientService.createClient({
       localName: "Client 1",
       address: "Address 1",
@@ -27,7 +29,6 @@ describe("Client Service", () => {
   });
 
   it("should not create a client if phone already exists", async () => {
-    const clientService = new ClientService(app.db);
     await clientService.createClient({
       localName: "Client 1",
       address: "Address 1",
@@ -44,7 +45,6 @@ describe("Client Service", () => {
     ).rejects.toThrow("CLIENT_EXISTS");
   });
   it("should not create a client if phone id already exist", async () => {
-    const clientService = new ClientService(app.db);
     await clientService.createClient({
       localName: "Client 1",
       address: "Address 1",
@@ -61,22 +61,18 @@ describe("Client Service", () => {
     ).rejects.toThrow("CLIENT_EXISTS");
   });
   it("shoudl return null if phone doest exist", async () => {
-    const clientService = new ClientService(app.db);
     const client = await clientService.getClientByPhone("123456789");
     expect(client).toBeNull();
   });
   it("shoudl return null if phone id doest exist", async () => {
-    const clientService = new ClientService(app.db);
     const client = await clientService.getClientByPhoneId("123456789");
     expect(client).toBeNull();
   });
   it("should return a list of clients", async () => {
-    const clientService = new ClientService(app.db);
     const clients = await clientService.listClients();
     expect(clients).toBeInstanceOf(Array);
   });
   it("should update a client", async () => {
-    const clientService = new ClientService(app.db);
     const client = await clientService.createClient({
       localName: "Client 1",
       address: "Address 1",
@@ -94,7 +90,6 @@ describe("Client Service", () => {
     expect(updatedClient.address).toBe("Address 1 Updated");
   });
   it("should update a client when partial data is provided", async () => {
-    const clientService = new ClientService(app.db);
     const client = await clientService.createClient({
       localName: "Client 1",
       address: "Address 1",
@@ -109,7 +104,6 @@ describe("Client Service", () => {
     expect(updatedClient.address).toBe("Address 1");
   });
   it("should update a client phone id when phone id is provided as null", async () => {
-    const clientService = new ClientService(app.db);
     const client = await clientService.createClient({
       localName: "Client 1",
       address: "Address 1",
@@ -123,7 +117,6 @@ describe("Client Service", () => {
     expect(updatedClient.phoneId).toBeNull();
   });
   it("should throw a error when updating a client that doesnt exist", async () => {
-    const clientService = new ClientService(app.db);
     await expect(
       clientService.updateClient(2442, {
         localName: "Client 1 Updated",
@@ -131,7 +124,6 @@ describe("Client Service", () => {
     ).rejects.toThrow("CLIENT_NOT_FOUND");
   });
   it("should return the client, when no updates are provided", async () => {
-    const clientService = new ClientService(app.db);
     const client = await clientService.createClient({
       localName: "Client 1",
       address: "Address 1",
@@ -146,14 +138,12 @@ describe("Client Service", () => {
     expect(updatedClient.phoneId).toBe("123456789");
   });
   it("should throw a error, when no updates are provided and the client doesnt exist", async () => {
-    const clientService = new ClientService(app.db);
     await expect(clientService.updateClient(2442, {})).rejects.toThrow(
       "CLIENT_NOT_FOUND",
     );
   });
 
   it("should delete a client", async () => {
-    const clientService = new ClientService(app.db);
     const client = await clientService.createClient({
       localName: "Client 1",
       address: "Address 1",

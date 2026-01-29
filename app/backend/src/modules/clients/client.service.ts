@@ -73,7 +73,7 @@ export class ClientService {
 
       if (Object.keys(cleanInput).length == 0) {
         const client = await this.getClientById(id);
-        if (!client) {
+        if (client == null) {
           throw new Error("CLIENT_NOT_FOUND");
         }
         return client;
@@ -87,7 +87,6 @@ export class ClientService {
       if (!updated) {
         throw new Error("CLIENT_NOT_FOUND");
       }
-
       return updated;
     } catch (error: any) {
       throw error;
@@ -100,7 +99,9 @@ export class ClientService {
         .delete(clients)
         .where(eq(clients.id, id))
         .returning();
-
+      if (!deleted) {
+        throw new Error("CLIENT_NOT_FOUND");
+      }
       return deleted;
     } catch (error: any) {
       throw error;
