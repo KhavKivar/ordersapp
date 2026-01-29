@@ -7,6 +7,7 @@ const clientSchema = createSelectSchema(clients);
 
 export type Client = z.infer<typeof clientSchema>;
 export type CreateClientInput = z.infer<typeof clientCreateDto.body>;
+export type UpdateClientInput = z.infer<typeof clientUpdateDto.body>;
 
 export const clientByPhoneDto = {
   params: z.object({
@@ -54,6 +55,34 @@ export const clientCreateDto = {
         "Phone must be a valid Chilean mobile number (e.g., 56912345678)",
     }),
     phoneId: z.string().nullable(),
+  }),
+  response: {
+    200: z.object({
+      client: clientSchema,
+    }),
+    400: z.object({
+      statusCode: z.number(),
+      error: z.string(),
+      message: z.string(),
+    }),
+  },
+};
+
+export const clientUpdateDto = {
+  body: z.object({
+    localName: z
+      .string()
+      .min(4, "Local name must be at least 4 characters long")
+      .optional(),
+    address: z.string().optional(),
+    phone: z
+      .string()
+      .regex(phoneRegex, {
+        message:
+          "Phone must be a valid Chilean mobile number (e.g., 56912345678)",
+      })
+      .optional(),
+    phoneId: z.string().optional().nullable(),
   }),
   response: {
     200: z.object({

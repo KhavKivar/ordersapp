@@ -12,15 +12,21 @@
     "migrate": "drizzle-kit migrate",
     "pull": "npx drizzle-kit pull",
     "generate-migration": "npx drizzle-kit generate --custom --name",
-    "reset": "docker compose down -v && docker compose up -d && drizzle-kit migrate"
+    "reset": "docker compose down -v && docker compose up -d && drizzle-kit migrate",
+    "test": "vitest",
+    "test:watch": "vitest --watch"
   },
   "devDependencies": {
+    "@types/node": "^25.1.0",
     "@types/pg": "^8.16.0",
     "drizzle-kit": "^0.31.8",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.3.15",
     "@fastify/autoload": "^6.3.1",
     "@fastify/cors": "^11.2.0",
     "@fastify/postgres": "^6.0.2",
