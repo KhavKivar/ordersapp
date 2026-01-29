@@ -7,8 +7,8 @@ import {
   clientUpdateDto,
   CreateClientInput,
   UpdateClientInput,
-} from "./client.schema.js";
-import { ClientService } from "./client.service.js";
+} from "./clients.schema.js";
+import { ClientService } from "./clients.service.js";
 
 export async function clientsRoutes(fastify: FastifyInstance) {
   const clientService = new ClientService(fastify.db);

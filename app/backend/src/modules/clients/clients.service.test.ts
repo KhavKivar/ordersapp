@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import Fastify from "fastify";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-import { ClientService } from "./client.service.js";
+import { ClientService } from "./clients.service.js";
 
 describe("Client Service", () => {
   let app: Fastify.FastifyInstance;

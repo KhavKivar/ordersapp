@@ -7,7 +7,7 @@ import {
   Client,
   CreateClientInput,
   UpdateClientInput,
-} from "./client.schema.js";
+} from "./clients.schema.js";
 
 export class ClientService {
   constructor(private readonly db: NodePgDatabase<any>) {}
