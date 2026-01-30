@@ -5,16 +5,13 @@ import {
   validatorCompiler,
 } from "fastify-type-provider-zod";
 
-import { sayHello } from "./routes/hello.js";
-import { ordersRoutes } from "./routes/orders.js";
-
-import { purchaseOrdersRoutes } from "./routes/purchase_orders.js";
-import { revenueRoutes } from "./routes/revenue.js";
-
 import { clientsRoutes } from "./modules/clients/index.js";
 import { productsRoutes } from "./modules/products/index.js";
 import dbPlugin from "./plugins/db.js";
 
+import { ordersRoutes } from "./modules/orders/index.js";
+import { purchaseOrdersRoutes } from "./modules/purchase_orders/index.js";
+import { revenueRoutes } from "./modules/revenue/index.js";
 import { AppError } from "./utils/error.js";
 
 export const fastify = Fastify({ logger: true });
@@ -36,13 +33,11 @@ await fastify.register(cors, {
 
 await fastify.register(dbPlugin);
 
-await fastify.register(productsRoutes);
-
-await fastify.register(ordersRoutes);
+await fastify.register(productsRoutes, { prefix: "/products" });
 await fastify.register(clientsRoutes, { prefix: "/clients" });
-await fastify.register(sayHello);
-await fastify.register(purchaseOrdersRoutes);
-await fastify.register(revenueRoutes);
+await fastify.register(purchaseOrdersRoutes, { prefix: "/purchase_orders" });
+await fastify.register(ordersRoutes, { prefix: "/orders" });
+await fastify.register(revenueRoutes, { prefix: "/revenue" });
 
 await fastify.setErrorHandler((error, request, reply) => {
   fastify.log.error({ reqId: request.id, err: error });

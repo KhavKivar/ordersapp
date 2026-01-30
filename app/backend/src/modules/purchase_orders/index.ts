@@ -1,26 +1,22 @@
 import { FastifyInstance } from "fastify";
-import {
-  createPurchaseOrder,
-  deletePurchaseOrder,
-  getPurchaseOrderById,
-  listPurchaseOrders,
-  updatePurchaseOrder,
-} from "../services/purchase_orders.js";
+import { PurchaseOrderService } from "./purchase_orders.service.js";
 
 export async function purchaseOrdersRoutes(fastify: FastifyInstance) {
-  fastify.get("/purchase_orders", async () => {
-    const orders = await listPurchaseOrders();
+  const purchaseOrderService = new PurchaseOrderService(fastify.db);
+
+  fastify.get("/", async () => {
+    const orders = await purchaseOrderService.listPurchaseOrders();
     return { orders };
   });
 
-  fastify.get("/purchase_orders/:id", async (request, reply) => {
+  fastify.get("/:id", async (request, reply) => {
     const id = Number((request.params as { id?: string }).id);
     if (!id) {
       return reply.status(400).send({ error: "id is required" });
     }
 
     try {
-      const purchaseOrder = await getPurchaseOrderById(id);
+      const purchaseOrder = await purchaseOrderService.getPurchaseOrderById(id);
       if (!purchaseOrder) {
         return reply.status(404).send({ error: "purchase order not found" });
       }
@@ -37,7 +33,7 @@ export async function purchaseOrdersRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.post("/purchase_orders", async (request, reply) => {
+  fastify.post("/", async (request, reply) => {
     const body = request.body as {
       orderListIds?: Array<number>;
     };
@@ -48,13 +44,14 @@ export async function purchaseOrdersRoutes(fastify: FastifyInstance) {
       });
     }
 
-    const created = await createPurchaseOrder({
+    const created = await purchaseOrderService.createPurchaseOrder({
       orderListIds,
     });
 
     return created;
   });
-  fastify.patch("/purchase_orders/:id", async (request, reply) => {
+
+  fastify.patch("/:id", async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = request.body as { orderListIds?: number[] };
 
@@ -66,22 +63,25 @@ export async function purchaseOrdersRoutes(fastify: FastifyInstance) {
     }
 
     try {
-      const updated = await updatePurchaseOrder(purchaseOrderId, {
-        orderListIds,
-      });
+      const updated = await purchaseOrderService.updatePurchaseOrder(
+        purchaseOrderId,
+        {
+          orderListIds,
+        },
+      );
       return updated;
     } catch (error: any) {
       return reply.status(500).send({ error: error.message });
     }
   });
 
-  fastify.delete("/purchase_orders/:id", async (request, reply) => {
+  fastify.delete("/:id", async (request, reply) => {
     const id = Number((request.params as { id?: string }).id);
     if (!id) {
       return reply.status(400).send({ error: "id is required" });
     }
 
-    const deleted = await deletePurchaseOrder(id);
+    const deleted = await purchaseOrderService.deletePurchaseOrder(id);
     if (!deleted) {
       return reply.status(404).send({ error: "purchase order not found" });
     }

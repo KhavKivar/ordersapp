@@ -218,7 +218,6 @@ describe("Client Routes ", () => {
         method: "DELETE",
         url: `/clients/24`,
       });
-      console.log(deleteClient);
 
       expect(deleteClient.statusCode).toBe(404);
     });

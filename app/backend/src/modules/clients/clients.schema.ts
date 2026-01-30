@@ -20,11 +20,6 @@ export const clientByPhoneDto = {
     200: z.object({
       client: clientSchema,
     }),
-    404: z.object({
-      statusCode: z.number(),
-      error: z.string(),
-      message: z.string(),
-    }),
   },
 };
 
@@ -60,12 +55,6 @@ export const clientCreateDto = {
     201: z.object({
       client: clientSchema,
     }),
-
-    400: z.object({
-      statusCode: z.number(),
-      error: z.string(),
-      message: z.string(),
-    }),
   },
 };
 
@@ -88,11 +77,6 @@ export const clientUpdateDto = {
   response: {
     200: z.object({
       client: clientSchema,
-    }),
-    400: z.object({
-      statusCode: z.number(),
-      error: z.string(),
-      message: z.string(),
     }),
   },
 };

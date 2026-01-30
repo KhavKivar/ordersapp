@@ -1,37 +1,32 @@
 import type { FastifyInstance } from "fastify";
-import {
-  createOrder,
-  deleteOrder,
-  getOrderById,
-  getOrdersAvailable,
-  listOrders,
-  updateOrder,
-} from "../services/orders.js";
+import { OrderService } from "./orders.service.js";
 
 export async function ordersRoutes(fastify: FastifyInstance) {
-  fastify.get("/orders", async () => {
-    const orders = await listOrders();
+  const orderService = new OrderService(fastify.db);
+
+  fastify.get("/", async () => {
+    const orders = await orderService.listOrders();
     return { orders };
   });
 
-  fastify.get("/orders/available/:purchaseOrderId", async (request, reply) => {
+  fastify.get("/available/:purchaseOrderId", async (request, reply) => {
     const purchaseOrderId = Number(
       (request.params as { purchaseOrderId?: string }).purchaseOrderId,
     );
     if (!purchaseOrderId) {
       return reply.status(400).send({ error: "purchaseOrderId is required" });
     }
-    const orders = await getOrdersAvailable(purchaseOrderId);
+    const orders = await orderService.getOrdersAvailable(purchaseOrderId);
     return { orders };
   });
 
-  fastify.get("/orders/:id", async (request, reply) => {
+  fastify.get("/:id", async (request, reply) => {
     const id = Number((request.params as { id?: string }).id);
     if (!id) {
       return reply.status(400).send({ error: "id is required" });
     }
 
-    const order = await getOrderById(id);
+    const order = await orderService.getOrderById(id);
     if (!order) {
       return reply.status(404).send({ error: "order not found" });
     }
@@ -39,7 +34,7 @@ export async function ordersRoutes(fastify: FastifyInstance) {
     return { order };
   });
 
-  fastify.post("/orders", async (request, reply) => {
+  fastify.post("/", async (request, reply) => {
     const body = request.body as {
       client_id?: number;
       items?: Array<{
@@ -78,7 +73,7 @@ export async function ordersRoutes(fastify: FastifyInstance) {
       });
     }
 
-    const created = await createOrder({
+    const created = await orderService.createOrder({
       clientId,
       items: normalizedItems,
     });
@@ -86,7 +81,7 @@ export async function ordersRoutes(fastify: FastifyInstance) {
     return created;
   });
 
-  fastify.patch("/orders/:id", async (request, reply) => {
+  fastify.patch("/:id", async (request, reply) => {
     const id = Number((request.params as { id?: string }).id);
     if (!id) {
       return reply.status(400).send({ error: "id is required" });
@@ -130,7 +125,7 @@ export async function ordersRoutes(fastify: FastifyInstance) {
       });
     }
 
-    const updated = await updateOrder(id, {
+    const updated = await orderService.updateOrder(id, {
       clientId,
       items: normalizedItems,
     });
@@ -142,9 +137,7 @@ export async function ordersRoutes(fastify: FastifyInstance) {
     return updated;
   });
 
-  fastify.delete("/orders/:id", async (request, reply) => {
-    console.log("params", request.params);
-
+  fastify.delete("/:id", async (request, reply) => {
     const id = Number((request.params as { id?: string }).id);
 
     if (!id) {
@@ -152,7 +145,7 @@ export async function ordersRoutes(fastify: FastifyInstance) {
     }
 
     try {
-      const deleted = await deleteOrder(id);
+      const deleted = await orderService.deleteOrder(id);
 
       if (!deleted) {
         return reply.status(404).send({ error: "order not found" });
