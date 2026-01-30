@@ -85,16 +85,31 @@ export default function PurchaseOrdersListPage() {
   };
 
   const handleCopy = (order: PurchaseOrderListItem, total: number) => {
+    // Group products by ID, name and price to ensure correct consolidation
+    const groupedLines = order.lines.reduce(
+      (acc: Record<string, PurchaseOrderLine>, line) => {
+        const key = `${line.productId}-${line.productName}-${line.buyPriceSupplier}`;
+        if (!acc[key]) {
+          acc[key] = { ...line };
+        } else {
+          acc[key].quantity += line.quantity;
+        }
+        return acc;
+      },
+      {},
+    );
+
     const orderText = [
-      `📦 *Orden de Compra #${order.purchaseOrderId}*`,
+      `📦 Orden de Compra #${order.purchaseOrderId}`,
       `🗓️ Fecha: ${new Date(order.createdAt).toLocaleDateString("es-CL")}`,
       "",
-      ...order.lines.map(
+      ...Object.values(groupedLines).map(
         (line: PurchaseOrderLine) =>
           `• ${line.productName ?? "Producto"}: ${line.quantity} x ${formatChileanPeso(line.buyPriceSupplier)} = ${formatChileanPeso(line.buyPriceSupplier * line.quantity)}`,
       ),
       "",
-      `💰 *Total: ${formatChileanPeso(total)}*`,
+      `💰 Total: ${formatChileanPeso(total)}`,
+      "Total a pedir al proveedor",
     ].join("\n");
 
     try {
