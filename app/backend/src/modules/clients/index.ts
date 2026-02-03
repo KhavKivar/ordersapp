@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { ConflictError, NotFoundError } from "../../utils/error.js";
+import { CLIENT_EXISTS, CLIENT_NOT_FOUND } from "../../utils/error_enum.js";
 import {
   clientByPhoneDto,
   clientByPhoneIdDto,
@@ -51,7 +52,7 @@ export async function clientsRoutes(fastify: FastifyInstance) {
       const created = await clientService.createClient(body);
       return reply.status(201).send({ client: created });
     } catch (error: any) {
-      if (error.message === "CLIENT_EXISTS") {
+      if (error.message === CLIENT_EXISTS) {
         throw new ConflictError(
           "A client with this phone or phoneId already exists",
         );
@@ -67,7 +68,7 @@ export async function clientsRoutes(fastify: FastifyInstance) {
       const updated = await clientService.updateClient(id, body);
       return { client: updated };
     } catch (error: any) {
-      if (error.message === "CLIENT_NOT_FOUND") {
+      if (error.message === CLIENT_NOT_FOUND) {
         throw new NotFoundError("Client not found");
       }
       throw error;
@@ -80,7 +81,7 @@ export async function clientsRoutes(fastify: FastifyInstance) {
       const deleted = await clientService.deleteClient(id);
       return { client: deleted };
     } catch (error: any) {
-      if (error.message === "CLIENT_NOT_FOUND") {
+      if (error.message === CLIENT_NOT_FOUND) {
         throw new NotFoundError("Client not found");
       }
       throw error;

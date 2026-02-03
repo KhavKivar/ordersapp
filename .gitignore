@@ -3,3 +3,4 @@ auth/
 *.log
 bun.lockb
 .env
+coverage/
