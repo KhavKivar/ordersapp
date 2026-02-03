@@ -1,10 +1,18 @@
 import { eq, isNull, or } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { clients, orderLines, orders, products } from "../../db/schema.js";
+import { CLIENT_NOT_FOUND, PRODUCT_NOT_FOUND } from "../../utils/error_enum.js";
+import { ClientService } from "../clients/clients.service.js";
+import { ProductService } from "../products/products.service.js";
 import { CreateOrderInput, OrderListItem } from "./orders.schema.js";
 
 export class OrderService {
-  constructor(private readonly db: NodePgDatabase<any>) {}
+  private readonly clientService: ClientService;
+  private readonly productService: ProductService;
+  constructor(private readonly db: NodePgDatabase<any>) {
+    this.clientService = new ClientService(db);
+    this.productService = new ProductService(db);
+  }
 
   async hasOrdersByClientId(clientId: number): Promise<boolean> {
     const rows = await this.db
@@ -188,26 +196,45 @@ export class OrderService {
   }
 
   async createOrder(input: CreateOrderInput) {
-    const [createdOrder] = await this.db
-      .insert(orders)
-      .values({
-        clientId: input.clientId,
-      })
-      .returning();
+    try {
+      //First check that client actually exist
+      const client = await this.clientService.getClientById(input.clientId);
+      if (!client) {
+        throw new Error(CLIENT_NOT_FOUND);
+      }
+      //Second check that products actually exist
 
-    const itemsToInsert = input.items.map((item) => ({
-      orderId: createdOrder.id,
-      productId: item.productId,
-      pricePerUnit: item.pricePerUnit,
-      quantity: item.quantity,
-    }));
+      const products = input.items.map((item) => async () => {
+        const productsExist = await this.productService.getProductById(
+          item.productId,
+        );
+        if (!productsExist) {
+          throw new Error(PRODUCT_NOT_FOUND);
+        }
+      });
 
-    const createdLines = await this.db
-      .insert(orderLines)
-      .values(itemsToInsert)
-      .returning();
+      const [createdOrder] = await this.db
+        .insert(orders)
+        .values({
+          clientId: input.clientId,
+        })
+        .returning();
 
-    return { order: createdOrder, lines: createdLines };
+      const itemsToInsert = input.items.map((item) => ({
+        orderId: createdOrder.id,
+        productId: item.productId,
+        pricePerUnit: item.pricePerUnit,
+        quantity: item.quantity,
+      }));
+
+      const createdLines = await this.db
+        .insert(orderLines)
+        .values(itemsToInsert)
+        .returning();
+      return { order: createdOrder, lines: createdLines };
+    } catch (e) {
+      throw e;
+    }
   }
 
   async updateOrder(id: number, input: CreateOrderInput) {

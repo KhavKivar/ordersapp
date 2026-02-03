@@ -3,7 +3,10 @@ import { z } from "zod";
 import { products } from "../../db/schema.js";
 
 export const productSchema = createSelectSchema(products);
+
+export const createProductSchema = productSchema.omit({ id: true });
 export type Product = z.infer<typeof productSchema>;
+export type CreateProductDto = z.infer<typeof createProductSchema>;
 
 export const ResponseProductDto = {
   response: {
