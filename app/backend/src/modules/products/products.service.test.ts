@@ -20,7 +20,7 @@ describe("Product Service", () => {
   });
 
   it("should list all products", async () => {
-    const products = await productService.listProducts();
+    const products = await productService.getProducts();
     expect(products).toBeInstanceOf(Array);
   });
 

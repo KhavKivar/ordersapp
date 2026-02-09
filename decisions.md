@@ -44,3 +44,16 @@ Proposed mapping:
 1.  **Rename/Move Folders**: Consolidate existing folders like `clients-all`, `orders-list`, `orders-detail` into the new structured format.
 2.  **Update Routes**: Update the `Routes` definition in `src/app/App.tsx` to reflect the new paths.
 3.  **Refactor Imports**: Update imports in components and layouts to point to the new file locations.
+
+## 2. Error Handling and Service Patterns
+
+### Service Response Patterns
+
+To maintain consistency across our backend services, we follow these rules for return values and error handling:
+
+- **GET (Queries)**:
+  - If a resource is not found, the service method returns `null`.
+  - The route handler is responsible for checking for `null` and throwing a `NotFoundError` (resulting in a 404 response).
+- **CREATE / UPDATE / DELETE (Mutations)**:
+  - These methods should **throw errors** if the operation cannot be completed (e.g., resource not found for update/delete, database constraints violated).
+  - This ensures that transactions are rolled back (if applicable) and the caller is notified of the failure explicitly.

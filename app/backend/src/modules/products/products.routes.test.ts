@@ -1,4 +1,8 @@
 import Fastify from "fastify";
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from "fastify-type-provider-zod";
 import { beforeAll, describe, expect, it } from "vitest";
 import { productsRoutes } from "./index.js";
 
@@ -7,8 +11,11 @@ describe("Product Routes", () => {
 
   beforeAll(async () => {
     app = Fastify();
+    app.setValidatorCompiler(validatorCompiler);
+    app.setSerializerCompiler(serializerCompiler);
     app.decorate("db", (await import("../../db/index.js")).db);
-    app.register(productsRoutes);
+    app.register(productsRoutes, { prefix: "/products" });
+    await app.ready();
   });
 
   it("GET /products should return a list of products", async () => {

@@ -15,7 +15,7 @@ export class ProductService {
     return createdProduct;
   }
 
-  async listProducts(): Promise<Product[]> {
+  async getProducts(): Promise<Product[]> {
     return this.db.select().from(products);
   }
   async getProductById(id: number): Promise<Product | null> {
