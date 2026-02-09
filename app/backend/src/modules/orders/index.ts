@@ -1,160 +1,92 @@
 import type { FastifyInstance } from "fastify";
+import { InternalServerError, NotFoundError } from "../../utils/error.js";
+
+import {
+  errorMessage,
+  ORDER_ARE_NOT_AVAILABLE,
+} from "../../utils/error_enum.js";
+import {
+  CreateOrderInput,
+  orderCreateDto,
+  orderDeleteDto,
+  OrderDeleteInput,
+  orderGetAvailableDto,
+  OrderGetAvailableInput,
+  orderGetByIdDto,
+  OrderGetByIdInput,
+  OrderUpdateInput,
+} from "./orders.schema.js";
 import { OrderService } from "./orders.service.js";
 
 export async function ordersRoutes(fastify: FastifyInstance) {
   const orderService = new OrderService(fastify.db);
 
   fastify.get("/", async () => {
-    const orders = await orderService.listOrders();
+    const orders = await orderService.getOrders();
     return { orders };
   });
 
-  fastify.get("/available/:purchaseOrderId", async (request, reply) => {
-    const purchaseOrderId = Number(
-      (request.params as { purchaseOrderId?: string }).purchaseOrderId,
-    );
-    if (!purchaseOrderId) {
-      return reply.status(400).send({ error: "purchaseOrderId is required" });
-    }
-    const orders = await orderService.getOrdersAvailable(purchaseOrderId);
-    return { orders };
-  });
+  fastify.get(
+    "/available/:purchaseOrderId",
+    { schema: orderGetAvailableDto },
+    async (request, reply) => {
+      const orderId = request.params as OrderGetAvailableInput;
+      const orders = await orderService.getOrdersAvailable(
+        orderId.purchaseOrderId,
+      );
 
-  fastify.get("/:id", async (request, reply) => {
-    const id = Number((request.params as { id?: string }).id);
-    if (!id) {
-      return reply.status(400).send({ error: "id is required" });
-    }
+      if (!orders || orders.length === 0) {
+        throw new NotFoundError(errorMessage[ORDER_ARE_NOT_AVAILABLE]);
+      }
+      return { orders };
+    },
+  );
 
-    const order = await orderService.getOrderById(id);
+  fastify.get("/:id", { schema: orderGetByIdDto }, async (request, reply) => {
+    const orderId = request.params as OrderGetByIdInput;
+    const order = await orderService.getOrderById(orderId.id);
     if (!order) {
-      return reply.status(404).send({ error: "order not found" });
+      throw new NotFoundError("Order not found");
     }
-
     return { order };
   });
 
-  fastify.post("/", async (request, reply) => {
-    const body = request.body as {
-      client_id?: number;
-      items?: Array<{
-        product_id?: number;
-        price_per_unit?: number;
-        quantity?: number;
-      }>;
-    };
-
-    const clientId = body?.client_id;
-    const items = body?.items ?? [];
-
-    if (!clientId || items.length === 0) {
-      return reply.status(400).send({
-        error: "client_id and items are required",
-      });
-    }
-
-    const normalizedItems: Array<{
-      productId: number;
-      pricePerUnit: number;
-      quantity: number;
-    }> = [];
-    for (const item of items) {
-      if (!item.product_id || !item.price_per_unit || !item.quantity) {
-        return reply.status(400).send({
-          error:
-            "Each item needs product_id, price_per_unit, quantity with values greater than 0",
-        });
+  fastify.post("/", { schema: orderCreateDto }, async (request, reply) => {
+    const body = request.body as CreateOrderInput;
+    try {
+      const created = await orderService.createOrder(body);
+      return reply.code(201).send(created);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
       }
-
-      normalizedItems.push({
-        productId: item.product_id,
-        pricePerUnit: item.price_per_unit,
-        quantity: item.quantity,
-      });
+      throw new InternalServerError("failed to create order");
     }
-
-    const created = await orderService.createOrder({
-      clientId,
-      items: normalizedItems,
-    });
-
-    return created;
   });
 
   fastify.patch("/:id", async (request, reply) => {
-    const id = Number((request.params as { id?: string }).id);
-    if (!id) {
-      return reply.status(400).send({ error: "id is required" });
-    }
-
-    const body = request.body as {
-      client_id?: number;
-      items?: Array<{
-        product_id?: number;
-        price_per_unit?: number;
-        quantity?: number;
-      }>;
-    };
-
-    const clientId = body?.client_id;
-    const items = body?.items ?? [];
-
-    if (!clientId || items.length === 0) {
-      return reply.status(400).send({
-        error: "client_id and items are required",
-      });
-    }
-
-    const normalizedItems: Array<{
-      productId: number;
-      pricePerUnit: number;
-      quantity: number;
-    }> = [];
-    for (const item of items) {
-      if (!item.product_id || !item.price_per_unit || !item.quantity) {
-        return reply.status(400).send({
-          error:
-            "Each item needs product_id, price_per_unit, quantity with values greater than 0",
-        });
+    const body = request.body as OrderUpdateInput;
+    try {
+      const updated = await orderService.updateOrder(body.orderId, body.order);
+      if (!updated) {
+        throw new NotFoundError("Order not found");
       }
-
-      normalizedItems.push({
-        productId: item.product_id,
-        pricePerUnit: item.price_per_unit,
-        quantity: item.quantity,
-      });
+      return updated;
+    } catch (error) {
+      throw new InternalServerError("failed to update order");
     }
-
-    const updated = await orderService.updateOrder(id, {
-      clientId,
-      items: normalizedItems,
-    });
-
-    if (!updated) {
-      return reply.status(404).send({ error: "order not found" });
-    }
-
-    return updated;
   });
 
-  fastify.delete("/:id", async (request, reply) => {
-    const id = Number((request.params as { id?: string }).id);
-
-    if (!id) {
-      return reply.status(400).send({ error: "id is required" });
-    }
-
+  fastify.delete("/:id", { schema: orderDeleteDto }, async (request, reply) => {
+    const id = request.params as OrderDeleteInput;
     try {
-      const deleted = await orderService.deleteOrder(id);
-
+      const deleted = await orderService.deleteOrder(id.id);
       if (!deleted) {
-        return reply.status(404).send({ error: "order not found" });
+        throw new NotFoundError("Order not found");
       }
-
       return { order: deleted };
     } catch (error) {
-      request.log.error({ err: error }, "failed to delete order");
-      return reply.status(500).send({ error: "failed to delete order" });
+      throw new InternalServerError("failed to delete order");
     }
   });
 }

@@ -43,3 +43,11 @@ We follow a standardized error handling flow between the Service and Route layer
 
 - **Services**: Services encapsulate database constraint logic. For example, when creating a client, the service catches Postgres error `23505` (Unique Violation) and throws a specific application error (e.g., `CLIENT_EXISTS`).
 - **Rationale**: Services handle the "why" of the failure (e.g., duplication), while the controller layer decides "how" to respond to the user (e.g., returning a 409 Conflict status).
+
+## 6. Request and Response Validation (Zod)
+
+We use **Zod** for schema definition and validation of both requests and responses.
+
+- **Automated Validation**: Instead of manual checks in the route handlers, Zod schemas are integrated with Fastify to automatically validate incoming data (body, params, query) and outgoing responses.
+- **Type Safety**: Zod schemas serve as the source of truth for TypeScript types, ensuring consistency between validation logic and the code's type system.
+- **Security**: Response validation ensures that sensitive data is not inadvertently exposed by filtering the returned objects based on the defined schema.

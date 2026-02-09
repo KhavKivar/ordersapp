@@ -1,7 +1,12 @@
 import { eq, isNull, or } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { clients, orderLines, orders, products } from "../../db/schema.js";
-import { CLIENT_NOT_FOUND, PRODUCT_NOT_FOUND } from "../../utils/error_enum.js";
+import { NotFoundError } from "../../utils/error.js";
+import {
+  CLIENT_NOT_FOUND,
+  ORDER_NOT_FOUND,
+  PRODUCT_NOT_FOUND,
+} from "../../utils/error_enum.js";
 import { ClientService } from "../clients/clients.service.js";
 import { ProductService } from "../products/products.service.js";
 import { CreateOrderInput, OrderListItem } from "./orders.schema.js";
@@ -26,7 +31,7 @@ export class OrderService {
     return rows.length > 0;
   }
 
-  async listOrders(): Promise<OrderListItem[]> {
+  async getOrders(): Promise<OrderListItem[]> {
     const rows = await this.db
       .select({
         createdAt: orders.createdAt,
@@ -70,7 +75,7 @@ export class OrderService {
         productId: row.productId,
         pricePerUnit: row.pricePerUnit,
         quantity: row.quantity,
-        lineTotal: row.lineTotal,
+        lineTotal: row.lineTotal ?? 0,
         productName: row.productName,
         buyPriceSupplier: row.buyPriceSupplier ?? 0,
       });
@@ -79,7 +84,7 @@ export class OrderService {
     return Array.from(ordersMap.values());
   }
 
-  async getOrdersAvailable(purchaseOrderId: number) {
+  async getOrdersAvailable(purchaseOrderId: number): Promise<OrderListItem[]> {
     const rows = await this.db
       .select({
         createdAt: orders.createdAt,
@@ -106,6 +111,10 @@ export class OrderService {
           eq(orders.purchaseOrderId, purchaseOrderId),
         ),
       );
+    if (rows.length == 0) {
+      return [];
+    }
+
     const ordersMap = new Map<number, OrderListItem>();
 
     for (const row of rows) {
@@ -128,7 +137,7 @@ export class OrderService {
         productId: row.productId,
         pricePerUnit: row.pricePerUnit,
         quantity: row.quantity,
-        lineTotal: row.lineTotal,
+        lineTotal: row.lineTotal ?? 0,
         productName: row.productName,
         buyPriceSupplier: row.buyPriceSupplier ?? 0,
       });
@@ -186,7 +195,7 @@ export class OrderService {
         productId: row.productId,
         pricePerUnit: row.pricePerUnit,
         quantity: row.quantity,
-        lineTotal: row.lineTotal,
+        lineTotal: row.lineTotal ?? 0,
         productName: row.productName,
         buyPriceSupplier: row.buyPriceSupplier ?? 0,
       });
@@ -200,18 +209,17 @@ export class OrderService {
       //First check that client actually exist
       const client = await this.clientService.getClientById(input.clientId);
       if (!client) {
-        throw new Error(CLIENT_NOT_FOUND);
+        throw new NotFoundError(CLIENT_NOT_FOUND);
       }
       //Second check that products actually exist
-
-      const products = input.items.map((item) => async () => {
-        const productsExist = await this.productService.getProductById(
+      for (const item of input.items) {
+        const product = await this.productService.getProductById(
           item.productId,
         );
-        if (!productsExist) {
-          throw new Error(PRODUCT_NOT_FOUND);
+        if (!product) {
+          throw new NotFoundError(PRODUCT_NOT_FOUND);
         }
-      });
+      }
 
       const [createdOrder] = await this.db
         .insert(orders)
@@ -232,39 +240,41 @@ export class OrderService {
         .values(itemsToInsert)
         .returning();
       return { order: createdOrder, lines: createdLines };
-    } catch (e) {
+    } catch (e: any) {
       throw e;
     }
   }
 
   async updateOrder(id: number, input: CreateOrderInput) {
-    const [updatedOrder] = await this.db
-      .update(orders)
-      .set({
-        clientId: input.clientId,
-      })
-      .where(eq(orders.id, id))
-      .returning();
+    return await this.db.transaction(async (tx) => {
+      const [updatedOrder] = await tx
+        .update(orders)
+        .set({
+          clientId: input.clientId,
+        })
+        .where(eq(orders.id, id))
+        .returning();
 
-    if (!updatedOrder) {
-      return null;
-    }
+      if (!updatedOrder) {
+        throw new NotFoundError(ORDER_NOT_FOUND);
+      }
 
-    await this.db.delete(orderLines).where(eq(orderLines.orderId, id));
+      await tx.delete(orderLines).where(eq(orderLines.orderId, id));
 
-    const itemsToInsert = input.items.map((item) => ({
-      orderId: updatedOrder.id,
-      productId: item.productId,
-      pricePerUnit: item.pricePerUnit,
-      quantity: item.quantity,
-    }));
+      const itemsToInsert = input.items.map((item) => ({
+        orderId: updatedOrder.id,
+        productId: item.productId,
+        pricePerUnit: item.pricePerUnit,
+        quantity: item.quantity,
+      }));
 
-    const updatedLines = await this.db
-      .insert(orderLines)
-      .values(itemsToInsert)
-      .returning();
+      const updatedLines = await tx
+        .insert(orderLines)
+        .values(itemsToInsert)
+        .returning();
 
-    return { order: updatedOrder, lines: updatedLines };
+      return { order: updatedOrder, lines: updatedLines };
+    });
   }
 
   async deleteOrder(id: number) {
@@ -274,6 +284,10 @@ export class OrderService {
         .delete(orders)
         .where(eq(orders.id, id))
         .returning();
+
+      if (!deleted) {
+        throw new NotFoundError(ORDER_NOT_FOUND);
+      }
 
       return deleted;
     });

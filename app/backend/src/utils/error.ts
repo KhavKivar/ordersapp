@@ -16,6 +16,12 @@ export class AppError extends Error {
   }
 }
 
+export class InternalServerError extends AppError {
+  constructor(message = "Internal server error") {
+    super(500, "INTERNAL_SERVER_ERROR", message);
+  }
+}
+
 export class NotFoundError extends AppError {
   constructor(message = "Resource not found") {
     super(404, "NOT_FOUND", message);
