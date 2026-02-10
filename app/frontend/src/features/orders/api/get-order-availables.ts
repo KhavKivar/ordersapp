@@ -17,6 +17,7 @@ export type OrderListItem = {
   localName: string | null;
   phone: string | null;
   lines: OrderLine[];
+  status: "pending" | "paid" | "delivered" | "delivered_paid" | "cancelled";
 };
 
 export type OrdersResponse = {
