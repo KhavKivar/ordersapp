@@ -15,7 +15,7 @@ import PurchaseOrderSummaryPage from "./purchase-order/new/summary/page";
 import PurchaseOrderListPage from "./purchase-order/page";
 import StatsPage from "./stats/page";
 import LoginPage from "./login/page";
-import { AuthGuard } from "@/features/auth/components/AuthGuard";
+import { AuthGuard } from "../features/auth/components/AuthGuard";
 
 const queryClient = new QueryClient();
 function App() {
