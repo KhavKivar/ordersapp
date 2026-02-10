@@ -414,7 +414,7 @@ export default function PurchaseOrderDetailPage() {
                             key={order.orderId}
                             id={order.orderId}
                             localName={order.localName ?? "Cliente Local"}
-                            status="pending"
+                            status={order.status}
                             createdAt={order.createdAt}
                             // Mapeo simplificado para la tarjeta de selección
                             items={order.lines.map((i) => ({
