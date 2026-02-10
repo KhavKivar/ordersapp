@@ -271,9 +271,9 @@ export default function OrdersEditPage() {
         )}
 
         {isSuccessData && !isLoadingData && !isErrorData && (
-          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
+          <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start w-full max-w-full overflow-hidden">
             {/* LADO IZQUIERDO: EDICIÓN FORMULARIO */}
-            <div className="space-y-6">
+            <div className="space-y-6 min-w-0 w-full">
               <header className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h1 className="text-3xl font-black tracking-tight text-slate-900">
@@ -290,7 +290,7 @@ export default function OrdersEditPage() {
 
               <form onSubmit={onSubmit} className="space-y-6">
                 {/* SELECCIÓN CLIENTE (SOLO LECTURA EN EDICIÓN POR SEGURIDAD DE NEGOCIO) */}
-                <div className="rounded-[2rem] border-0 bg-white p-8 shadow-sm ring-1 ring-slate-100 transition-all hover:shadow-md">
+                <div className="rounded-[2rem] border-0 bg-white p-8 shadow-sm ring-1 ring-slate-100 transition-all hover:shadow-md w-full overflow-hidden">
                   <FormField
                     label="Cliente Asignado"
                     labelClassName="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2"
@@ -308,7 +308,7 @@ export default function OrdersEditPage() {
                 </div>
 
                 {/* GESTIÓN DE PRODUCTOS */}
-                <div className="rounded-[2rem] border-0 bg-white p-8 shadow-sm ring-1 ring-slate-100">
+                <div className="rounded-[2rem] border-0 bg-white p-8 shadow-sm ring-1 ring-slate-100 w-full overflow-hidden">
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
                     <Plus className="size-4" />
                     Actualizar Catálogo
@@ -450,7 +450,7 @@ export default function OrdersEditPage() {
                     <Button
                       type="submit"
                       variant="primary"
-                      className="h-14 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700 font-bold"
+                      className="h-14 w-full rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700 font-bold"
                     >
                       <Plus className="mr-2 size-5" />
                       Actualizar Línea
@@ -461,8 +461,8 @@ export default function OrdersEditPage() {
             </div>
 
             {/* LADO DERECHO: RESUMEN / ESTADO FINAL */}
-            <aside className="lg:sticky lg:top-24">
-              <div className="rounded-[2.5rem] border-0 bg-white shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100 overflow-hidden">
+            <aside className="lg:sticky lg:top-24 min-w-0 w-full overflow-hidden">
+              <div className="rounded-[2.5rem] border-0 bg-white shadow-2xl shadow-slate-200/50 ring-1 ring-slate-100 overflow-hidden w-full">
                 <div className="bg-indigo-900 px-8 py-6 text-white flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <ShoppingCart className="size-5 text-indigo-300" />

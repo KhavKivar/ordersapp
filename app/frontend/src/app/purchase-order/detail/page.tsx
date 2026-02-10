@@ -482,7 +482,7 @@ export default function PurchaseOrderDetailPage() {
                             </div>
                             {/* Preview rápido de items (solo los primeros 2) */}
                             <div className="mt-3 space-y-1 border-t border-slate-100 pt-3">
-                              {order.lines.slice(0, 3).map((line, idx) => (
+                              {order.lines.map((line, idx) => (
                                 <div
                                   key={idx}
                                   className="flex justify-between text-xs text-slate-600"
@@ -492,11 +492,6 @@ export default function PurchaseOrderDetailPage() {
                                   </span>
                                 </div>
                               ))}
-                              {order.lines.length > 3 && (
-                                <p className="text-[10px] italic text-slate-400">
-                                  + {order.lines.length - 3} items más...
-                                </p>
-                              )}
                             </div>
                           </Card>
                         );
