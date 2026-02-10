@@ -1,4 +1,4 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 
 export type OrderDetailLine = {
   lineId: number;
@@ -22,13 +22,9 @@ export type OrderDetail = {
 };
 
 export const getOrder = async (orderId: number): Promise<OrderDetail> => {
-  const res = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+  const res = await httpClient.get(`/orders/${orderId}`);
 
-  if (!res.ok) {
-    throw new Error("Error cargando pedido");
-  }
-
-  const data: { order: OrderDetail } = await res.json();
+  const data: { order: OrderDetail } = res.data;
 
   return data.order;
 };

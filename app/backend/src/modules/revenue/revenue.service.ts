@@ -8,7 +8,7 @@ export async function getRevenueByDay(
 ): Promise<RevenueByDay[]> {
   return db
     .select({
-      day: sql<string>`TO_CHAR(${orders.createdAt}, 'DD/MM/YYYY')`.as("day"),
+      day: sql<string>`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`.as("day"),
       totalGain: sql<number>`SUM(
       (${orderLines.pricePerUnit} - ${products.buyPriceSupplier}) * ${orderLines.quantity}
     )::integer`.as("totalGain"),
@@ -16,6 +16,6 @@ export async function getRevenueByDay(
     .from(orders)
     .innerJoin(orderLines, eq(orderLines.orderId, orders.id))
     .innerJoin(products, eq(orderLines.productId, products.id))
-    .groupBy(sql`TO_CHAR(${orders.createdAt}, 'DD/MM/YYYY')`, orders.createdAt)
+    .groupBy(sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`, orders.createdAt)
     .orderBy(sql`${orders.createdAt} DESC`);
 }

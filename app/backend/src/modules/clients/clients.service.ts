@@ -105,6 +105,10 @@ export class ClientService {
       }
       return deleted;
     } catch (error: any) {
+      const code = error.code || error.cause?.code;
+      if (code === "23503") {
+        throw new Error("Client has orders");
+      }
       throw error;
     }
   }

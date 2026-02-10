@@ -11,7 +11,7 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -135,8 +135,36 @@ export default function ClientsAllPage() {
     updateMutation.mutate({ id: editingClient.id, data: payload });
   };
 
-  const clients = data?.clients ?? [];
+  const clients = useMemo(() => data?.clients ?? [], [data]);
   const hasClients = clients.length > 0;
+
+  const [visibleCount, setVisibleCount] = useState(10);
+  const CLIENTS_PER_PAGE = 10;
+
+  const visibleClients = clients.slice(0, visibleCount);
+  const hasMore = visibleCount < clients.length;
+
+  const loadMoreRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (!node) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore) {
+            setVisibleCount((prev) =>
+              Math.min(prev + CLIENTS_PER_PAGE, clients.length),
+            );
+          }
+        },
+        { threshold: 0.5, rootMargin: "100px" },
+      );
+
+      observer.observe(node);
+
+      return () => observer.disconnect();
+    },
+    [hasMore, clients.length],
+  );
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
@@ -202,7 +230,7 @@ export default function ClientsAllPage() {
           )}
 
           {/* LISTADO DE TARJETAS */}
-          {clients.map((client) => (
+          {visibleClients.map((client) => (
             <Card
               key={client.id}
               className="group relative flex flex-col overflow-hidden rounded-[2.5rem] border-0 bg-white p-6 shadow-sm ring-1 ring-slate-100 transition-all hover:shadow-xl hover:shadow-slate-200/50"
@@ -238,42 +266,35 @@ export default function ClientsAllPage() {
 
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 rounded-full bg-slate-50 text-rose-400 hover:bg-rose-50 hover:text-rose-600"
+                        <button
+                          type="button"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-rose-500 transition-colors hover:bg-rose-50 hover:text-rose-700"
+                          onClick={(e) => e.stopPropagation()} // Evita seleccionar la card al abrir el diálogo
+                          aria-label="Eliminar cliente"
                         >
-                          <Trash2 className="size-4" />
-                        </Button>
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </DialogTrigger>
-                      <DialogContent className="fixed inset-0 z-50 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-md sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2rem] sm:border sm:shadow-2xl overflow-hidden">
-                        <DialogHeader className="p-8 pb-4 text-left">
-                          <DialogTitle className="text-2xl font-black text-slate-900">
-                            ¿Eliminar cliente?
-                          </DialogTitle>
-                          <DialogDescription className="text-base font-medium text-slate-500">
-                            Se borrarán todos los datos históricos de{" "}
-                            <span className="text-slate-900 font-bold">
-                              {client.localName}
-                            </span>
-                            . Esta acción no se puede deshacer.
+                      <DialogContent onClick={(e) => e.stopPropagation()}>
+                        <DialogHeader>
+                          <DialogTitle>¿Eliminar cliente?</DialogTitle>
+                          <DialogDescription>
+                            Esta acción no se puede deshacer. Se eliminará el
+                            registro del cliente {client.localName}.
                           </DialogDescription>
                         </DialogHeader>
-                        <DialogFooter className="mt-auto border-t border-slate-100 p-8 flex flex-col gap-3 sm:mt-0 sm:border-0 sm:flex-row">
+                        <DialogFooter className="gap-2 sm:gap-0">
                           <DialogClose asChild>
-                            <Button
-                              variant="outline"
-                              className="h-14 rounded-2xl font-bold sm:h-12 flex-1"
-                            >
-                              Cancelar
-                            </Button>
+                            <Button variant="outline">Cancelar</Button>
                           </DialogClose>
                           <Button
                             variant="destructive"
-                            className="h-14 rounded-2xl font-bold bg-rose-600 sm:h-12 flex-1"
-                            onClick={() => handleDelete(client)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(client);
+                            }}
                           >
-                            Eliminar
+                            Eliminar Cliente
                           </Button>
                         </DialogFooter>
                       </DialogContent>
@@ -314,6 +335,15 @@ export default function ClientsAllPage() {
               </div>
             </Card>
           ))}
+          {/* Sentinel for infinite scroll */}
+          {hasMore && (
+            <div
+              ref={loadMoreRef}
+              className="col-span-full h-20 flex items-center justify-center"
+            >
+              <Loader2 className="size-8 animate-spin text-amber-500" />
+            </div>
+          )}
         </section>
       </div>
 
@@ -325,8 +355,8 @@ export default function ClientsAllPage() {
           if (!open) setEditingClient(null);
         }}
       >
-        <DialogContent className="fixed inset-0 z-50 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2rem] sm:border sm:shadow-2xl overflow-hidden">
-          <DialogHeader className="p-8 pb-4 text-left">
+        <DialogContent className="">
+          <DialogHeader className="p-8 pb-4 text-left shrink-0">
             <DialogTitle className="text-2xl font-black text-slate-900">
               Editar Cliente
             </DialogTitle>
@@ -335,11 +365,8 @@ export default function ClientsAllPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-1 flex-col"
-          >
-            <div className="flex-1 space-y-6 px-8 py-4">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-6 px-8">
               <FormField
                 label="Nombre del Local"
                 error={errors.localName?.message}
@@ -371,26 +398,27 @@ export default function ClientsAllPage() {
                   className="h-14 rounded-2xl bg-slate-50 border-0 ring-1 ring-slate-200"
                 />
               </FormField>
-            </div>
-
-            <div className="mt-auto border-t border-slate-100 p-8 flex flex-col gap-3 sm:mt-0 sm:border-0 sm:flex-row sm:justify-end">
-              <DialogClose asChild>
+              <div className="flex flex-col sm:flex-row gap-2 justify-end py-4">
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-14 w-full rounded-2xl font-bold sm:h-12 sm:w-auto sm:px-8"
+                  >
+                    Cancelar
+                  </Button>
+                </DialogClose>
                 <Button
-                  type="button"
-                  variant="outline"
-                  className="h-14 rounded-2xl font-bold sm:h-12 sm:px-8"
+                  type="submit"
+                  variant="primary"
+                  className="h-14 w-full rounded-2xl font-bold bg-slate-900 sm:h-12 sm:w-auto sm:px-8"
+                  disabled={updateMutation.isPending}
                 >
-                  Cancelar
+                  {updateMutation.isPending
+                    ? "Guardando..."
+                    : "Guardar Cambios"}
                 </Button>
-              </DialogClose>
-              <Button
-                type="submit"
-                variant="primary"
-                className="h-14 rounded-2xl font-bold bg-slate-900 sm:h-12 sm:px-8"
-                disabled={updateMutation.isPending}
-              >
-                {updateMutation.isPending ? "Guardando..." : "Guardar Cambios"}
-              </Button>
+              </div>
             </div>
           </form>
         </DialogContent>

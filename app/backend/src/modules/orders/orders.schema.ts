@@ -12,6 +12,14 @@ export const orderLineItemSchema = z.object({
   buyPriceSupplier: z.number(),
 });
 
+const orderStatusEnum = z.enum([
+  "pending",
+  "paid",
+  "delivered",
+  "delivered_paid",
+  "cancelled",
+]);
+
 const orderListItemSchema = z.object({
   orderId: z.number(),
   createdAt: z.string(),
@@ -20,6 +28,7 @@ const orderListItemSchema = z.object({
   phone: z.string().nullable(),
   lines: z.array(orderLineItemSchema),
   purchaseOrderId: z.number().nullable(),
+  status: orderStatusEnum,
 });
 
 export const orderListItemArraySchema = z.array(orderListItemSchema);
@@ -35,6 +44,7 @@ export type OrderGetAvailableInput = z.infer<
   typeof orderGetAvailableDto.params
 >;
 export type OrderUpdateInput = z.infer<typeof orderUpdateDto.body>;
+export type OrderStatusUpdateInput = z.infer<typeof orderStatusUpdateDto.body>;
 export type OrderDeleteInput = z.infer<typeof orderDeleteDto.params>;
 
 export const orderGetByIdDto = {
@@ -86,6 +96,18 @@ export const orderUpdateDto = {
     orderId: z.number().positive("Order ID must be a positive number"),
     order: orderCreateDto.body,
   }),
+};
+
+export const orderStatusUpdateDto = {
+  body: z.object({
+    orderId: z.number().positive("Order ID must be a positive number"),
+    status: orderStatusEnum,
+  }),
+  response: {
+    200: z.object({
+      order: order,
+    }),
+  },
 };
 
 export const orderDeleteDto = {

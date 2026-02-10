@@ -1,13 +1,7 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 
 export const deleteOrder = async (orderId: number) => {
-  const res = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
-    method: "DELETE",
-  });
+  const res = await httpClient.delete(`/orders/${orderId}`);
 
-  if (!res.ok) {
-    throw new Error("Error eliminando pedido");
-  }
-
-  return res.json();
+  return res.data;
 };

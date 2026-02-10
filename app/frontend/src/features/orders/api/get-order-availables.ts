@@ -1,4 +1,4 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 
 export type OrderLine = {
   lineId: number;
@@ -26,15 +26,9 @@ export type OrdersResponse = {
 export const getOrdersAvailable = async (
   purchaseOrderId: number,
 ): Promise<OrdersResponse> => {
-  const res = await fetch(
-    `${API_BASE_URL}/orders/available/${purchaseOrderId}`,
-  );
+  const res = await httpClient.get(`/orders/available/${purchaseOrderId}`);
 
-  if (!res.ok) {
-    throw new Error("Error cargando pedido");
-  }
-
-  const data: OrdersResponse = await res.json();
+  const data: OrdersResponse = res.data;
   const ordersResponse: OrdersResponse = {
     orders: data.orders.sort(
       (a, b) =>

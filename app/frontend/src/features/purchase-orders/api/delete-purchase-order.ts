@@ -1,19 +1,13 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 
 import type { PurchaseOrderListItem } from "./get-purchase-orders";
 
 export const deletePurchaseOrder = async (
   orderId: number | string,
 ): Promise<PurchaseOrderListItem> => {
-  const res = await fetch(`${API_BASE_URL}/purchase_orders/${orderId}`, {
-    method: "DELETE",
-  });
+  const res = await httpClient.delete(`/purchase_orders/${orderId}`);
 
-  if (!res.ok) {
-    throw new Error("Error eliminando orden de compra");
-  }
-
-  const response = await res.json();
+  const response = res.data;
 
   return response.order ?? response;
 };
