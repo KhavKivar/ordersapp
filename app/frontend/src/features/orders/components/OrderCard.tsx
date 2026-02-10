@@ -135,7 +135,7 @@ export default function OrderCard({
       )}
     >
       {/* HEADER: Nombre y Ganancia */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-nowrap items-start justify-between gap-4">
         <div className="space-y-1">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/80">
             Pedido #{id}
