@@ -60,7 +60,7 @@ const MONTHS_SHORT = [
 // --- Helpers de Fecha y Datos ---
 
 const parseRevenueDate = (value: string) => {
-  const [day, month, year] = value.split("/").map(Number);
+  const [year, month, day] = value.split("-").map(Number);
   if (!day || !month || !year) return null;
   return new Date(year, month - 1, day);
 };

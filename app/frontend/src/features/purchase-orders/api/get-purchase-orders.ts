@@ -1,4 +1,4 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 
 export type PurchaseOrderLine = {
   productId: number;
@@ -19,13 +19,9 @@ export type PurchaseOrdersResponse = {
 };
 
 export const getPurchaseOrders = async (): Promise<PurchaseOrdersResponse> => {
-  const res = await fetch(`${API_BASE_URL}/purchase_orders`);
+  const res = await httpClient.get("/purchase_orders");
 
-  if (!res.ok) {
-    throw new Error("Error cargando ordenes de compra");
-  }
-
-  const data: PurchaseOrdersResponse = await res.json();
+  const data: PurchaseOrdersResponse = res.data;
 
   const ordersList = data.orders.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),

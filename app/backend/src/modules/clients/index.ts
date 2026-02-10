@@ -84,6 +84,9 @@ export async function clientsRoutes(fastify: FastifyInstance) {
       if (error.message === CLIENT_NOT_FOUND) {
         throw new NotFoundError("Client not found");
       }
+      if (error.message === "Client has orders") {
+        throw new ConflictError("Client has orders");
+      }
       throw error;
     }
   });

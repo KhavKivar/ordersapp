@@ -9,7 +9,11 @@ import {
 } from "../../utils/error_enum.js";
 import { ClientService } from "../clients/clients.service.js";
 import { ProductService } from "../products/products.service.js";
-import { CreateOrderInput, OrderListItem } from "./orders.schema.js";
+import {
+  CreateOrderInput,
+  OrderListItem,
+  OrderStatusUpdateInput,
+} from "./orders.schema.js";
 
 export class OrderService {
   private readonly clientService: ClientService;
@@ -47,6 +51,7 @@ export class OrderService {
         productName: products.name,
         buyPriceSupplier: products.buyPriceSupplier,
         purchaseOrderId: orders.purchaseOrderId,
+        status: orders.status,
       })
       .from(orders)
       .innerJoin(clients, eq(orders.clientId, clients.id))
@@ -66,6 +71,7 @@ export class OrderService {
           phone: row.phone,
           lines: [],
           purchaseOrderId: row.purchaseOrderId,
+          status: row.status,
         };
         ordersMap.set(row.orderId, order);
       }
@@ -100,6 +106,7 @@ export class OrderService {
         productName: products.name,
         buyPriceSupplier: products.buyPriceSupplier,
         purchaseOrderId: orders.purchaseOrderId,
+        status: orders.status,
       })
       .from(orders)
       .innerJoin(clients, eq(orders.clientId, clients.id))
@@ -128,6 +135,7 @@ export class OrderService {
           phone: row.phone,
           lines: [],
           purchaseOrderId: row.purchaseOrderId,
+          status: row.status,
         };
         ordersMap.set(row.orderId, order);
       }
@@ -162,6 +170,7 @@ export class OrderService {
         productName: products.name,
         buyPriceSupplier: products.buyPriceSupplier,
         purchaseOrderId: orders.purchaseOrderId,
+        status: orders.status,
       })
       .from(orders)
       .innerJoin(clients, eq(orders.clientId, clients.id))
@@ -186,6 +195,7 @@ export class OrderService {
           localName: row.localName,
           phone: row.phone,
           lines: [],
+          status: row.status,
         };
         ordersMap.set(row.orderId, order);
       }
@@ -291,5 +301,18 @@ export class OrderService {
 
       return deleted;
     });
+  }
+
+  async updateStatus(id: number, status: OrderStatusUpdateInput["status"]) {
+    const [updatedOrder] = await this.db
+      .update(orders)
+      .set({ status })
+      .where(eq(orders.id, id))
+      .returning();
+
+    if (!updatedOrder) {
+      throw new NotFoundError(ORDER_NOT_FOUND);
+    }
+    return updatedOrder;
   }
 }

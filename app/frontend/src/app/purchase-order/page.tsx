@@ -220,45 +220,37 @@ export default function PurchaseOrdersListPage() {
                       >
                         <Copy className="size-4" />
                       </Button>
+
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 rounded-full bg-slate-50 text-rose-400 hover:bg-rose-50 hover:text-rose-600"
-                            disabled={deleteMutation.isPending}
+                          <button
+                            type="button"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-rose-500 transition-colors hover:bg-rose-50 hover:text-rose-700"
+                            onClick={(e) => e.stopPropagation()} // Evita seleccionar la card al abrir el diálogo
+                            aria-label="Eliminar pedido"
                           >
-                            <Trash2 className="size-4" />
-                          </Button>
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </DialogTrigger>
-                        <DialogContent className="fixed inset-0 z-50 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-md sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2rem] sm:border sm:shadow-2xl overflow-hidden">
-                          <DialogHeader className="p-8 pb-4 text-left">
-                            <DialogTitle className="text-2xl font-black text-slate-900">
-                              Eliminar Orden #{order.purchaseOrderId}
-                            </DialogTitle>
-                            <DialogDescription className="text-base font-medium text-slate-500">
-                              ¿Estás seguro? Esta acción eliminará
-                              permanentemente el registro de compra y liberará
-                              los pedidos asociados.
+                        <DialogContent onClick={(e) => e.stopPropagation()}>
+                          <DialogHeader>
+                            <DialogTitle>¿Eliminar pedido?</DialogTitle>
+                            <DialogDescription>
+                              Esta acción no se puede deshacer. Se eliminará el
+                              registro del pedido .
                             </DialogDescription>
                           </DialogHeader>
-                          <DialogFooter className="mt-auto border-t border-slate-100 p-8 flex flex-col gap-3 sm:mt-0 sm:border-0 sm:flex-row">
+                          <DialogFooter className="gap-2 sm:gap-0">
                             <DialogClose asChild>
-                              <Button
-                                variant="outline"
-                                className="h-14 rounded-2xl font-bold sm:h-12 flex-1"
-                              >
-                                Cancelar
-                              </Button>
+                              <Button variant="outline">Cancelar</Button>
                             </DialogClose>
                             <Button
                               variant="destructive"
-                              className="h-14 rounded-2xl font-bold bg-rose-600 sm:h-12 flex-1"
                               onClick={() =>
                                 handleDelete(order.purchaseOrderId)
                               }
                             >
-                              Eliminar
+                              Eliminar Pedido
                             </Button>
                           </DialogFooter>
                         </DialogContent>

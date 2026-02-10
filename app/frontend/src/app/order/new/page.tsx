@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import FormField from "@/components/ui/Form/form_field";
 import Input from "@/components/ui/Input/input";
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 import type { Client } from "@/features/client/api/client.schema";
 import { createOrder } from "@/features/orders/api/create-order";
 import type { OrderCreateDto } from "@/features/orders/api/order.schema";
@@ -72,12 +72,12 @@ export default function OrdersPage() {
     data: productsData,
   } = useQuery<ProductQuery>({
     queryKey: ["products"],
-    queryFn: () => fetch(API_BASE_URL + "/products").then((res) => res.json()),
+    queryFn: () => httpClient.get("/products").then((res) => res.data),
   });
 
   const { isPending, error, data } = useQuery<ClientQuery>({
     queryKey: ["clients"],
-    queryFn: () => fetch(API_BASE_URL + "/clients").then((res) => res.json()),
+    queryFn: () => httpClient.get("/clients").then((res) => res.data),
   });
 
   const isLoadingData = isPending || productsPending;

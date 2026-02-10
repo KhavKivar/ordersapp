@@ -1,4 +1,4 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 import type { Revenue } from "./revenue-schema";
 
 export type RevenueResponse = {
@@ -6,13 +6,9 @@ export type RevenueResponse = {
 };
 
 export const getRevenue = async (): Promise<RevenueResponse> => {
-  const res = await fetch(`${API_BASE_URL}/revenue`);
+  const res = await httpClient.get("/revenue");
 
-  if (!res.ok) {
-    throw new Error("Error cargando ingresos");
-  }
-
-  const data: RevenueResponse = await res.json();
+  const data: RevenueResponse = res.data;
   const revenueList = data.revenue.sort((a, b) => a.day.localeCompare(b.day));
 
   return { revenue: revenueList };

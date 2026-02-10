@@ -1,4 +1,4 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 import type { Client } from "./client.schema";
 
 export type ClientsResponse = {
@@ -6,13 +6,9 @@ export type ClientsResponse = {
 };
 
 export const getClients = async (): Promise<ClientsResponse> => {
-  const res = await fetch(`${API_BASE_URL}/clients`);
+  const res = await httpClient.get("/clients");
 
-  if (!res.ok) {
-    throw new Error("Error cargando clientes");
-  }
-
-  const data: ClientsResponse = await res.json();
+  const data: ClientsResponse = res.data;
   const clientsList = data.clients.sort((a, b) =>
     a.localName.localeCompare(b.localName),
   );

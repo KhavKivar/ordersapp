@@ -1,4 +1,4 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
 
 interface PurchaseOrderCreateDTO {
   orderListIds: number[];
@@ -9,12 +9,7 @@ export const createPurchaseOrder = async (payload: PurchaseOrderCreateDTO) => {
     orderListIds: payload.orderListIds,
   };
 
-  const res = await fetch(`${API_BASE_URL}/purchase_orders`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(requestBody),
-  });
+  const res = await httpClient.post("/purchase_orders", requestBody);
 
-  if (!res.ok) throw new Error("Error creando orden de compra");
-  return res.json();
+  return res.data;
 };

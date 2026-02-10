@@ -11,7 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { formatChileanPeso } from "@/utils/format-currency";
-import { Calendar, Copy, Pencil, Trash2, TrendingUp } from "lucide-react";
+import {
+  Calendar,
+  Copy,
+  Pencil,
+  RefreshCw,
+  Trash2,
+  TrendingUp,
+} from "lucide-react";
 import { toast } from "sonner";
 
 type OrderLine = {
@@ -55,11 +62,35 @@ export default function OrderCard({
   status,
   createdAt,
   items,
+  isSelected,
   onEdit,
   onClick,
   onDelete,
-  isSelected,
-}: OrderCardProps) {
+  onStatusChange,
+}: OrderCardProps & {
+  onStatusChange?: (
+    orderId: number,
+    newStatus: OrderCardProps["status"],
+  ) => void;
+}) {
+  const handleStatusClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!onStatusChange) return;
+
+    const nextStatusMap: Record<
+      OrderCardProps["status"],
+      OrderCardProps["status"]
+    > = {
+      pending: "delivered",
+      delivered: "delivered_paid",
+      delivered_paid: "pending",
+      paid: "delivered_paid", // If somehow paid, move to delivered_paid
+      cancelled: "pending", // If cancelled, revive to pending
+    };
+
+    const nextStatus = nextStatusMap[status];
+    onStatusChange(id, nextStatus);
+  };
   const total = items.reduce(
     (sum, item) => sum + item.pricePerUnit * item.quantity,
     0,
@@ -114,14 +145,24 @@ export default function OrderCard({
           </h3>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span
+          <button
+            type="button"
+            onClick={handleStatusClick}
             className={cn(
-              "rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide",
+              "rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide transition-all hover:scale-105 active:scale-95",
+              "whitespace-nowrap max-w-[200px]",
               STATUS_STYLES[status],
+              onStatusChange
+                ? "cursor-pointer hover:shadow-sm"
+                : "cursor-default",
             )}
+            title={onStatusChange ? "Click para cambiar estado" : undefined}
           >
-            {STATUS_LABELS[status]}
-          </span>
+            <div className="flex items-center gap-1.5 overflow-hidden">
+              <span className="truncate">{STATUS_LABELS[status]}</span>
+              {onStatusChange && <RefreshCw className="h-3 w-3 shrink-0" />}
+            </div>
+          </button>
           <div className="flex items-center gap-1.5 bg-emerald-100/50 px-2 py-1 rounded-lg text-emerald-700">
             <TrendingUp className="h-3.5 w-3.5" />
             <span className="text-xs font-bold">

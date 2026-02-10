@@ -1,3 +1,4 @@
+import "dotenv/config";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
 import {
@@ -56,6 +57,22 @@ await fastify.setErrorHandler((error, request, reply) => {
     code: "INTERNAL_SERVER_ERROR",
     message: "Something went wrong",
   });
+});
+
+await fastify.addHook("onRequest", async (request, reply) => {
+  if (request.url.includes("login") || request.method === "OPTIONS") {
+    return;
+  }
+  const authHeader = request.headers.authorization;
+  const expectHeader = `Bearer ${process.env.API_SECRET_KEY}`;
+  console.log(authHeader, expectHeader);
+  if (!authHeader || authHeader !== expectHeader) {
+    return reply.code(401).send({
+      status: 401,
+      code: "UNAUTHORIZED",
+      message: "Unauthorized",
+    });
+  }
 });
 
 export default fastify;

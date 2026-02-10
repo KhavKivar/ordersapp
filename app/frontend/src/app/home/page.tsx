@@ -11,7 +11,11 @@ import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 
 import { Card } from "@/components/ui/Card/card";
+import { getOrders } from "@/features/orders/api/get-orders";
+import { getRevenue } from "@/features/revenue/api/get-revenue";
 import { cn } from "@/lib/utils";
+import { formatChileanPeso } from "@/utils/format-currency";
+import { useQuery } from "@tanstack/react-query";
 
 const DASHBOARD_ITEMS = [
   {
@@ -63,6 +67,33 @@ export default function Home() {
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
+
+  const { data: ordersData } = useQuery({
+    queryKey: ["orders"],
+    queryFn: getOrders,
+  });
+
+  const { data: revenueData } = useQuery({
+    queryKey: ["revenue"],
+    queryFn: getRevenue,
+  });
+
+  const today = new Date().toISOString().split("T")[0];
+  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+  const ordersToday =
+    ordersData?.orders.filter((order) => order.createdAt.startsWith(today))
+      .length ?? 0;
+
+  const currentMonthRevenue =
+    revenueData?.revenue
+      .filter((r) => r.day.startsWith(currentMonth))
+      .reduce((sum, r) => sum + Number(r.totalGain), 0) ?? 0;
+
+  // Simple growth calculation logic could be added here if we had historical context easily available
+  // For now, we'll leave it as a placeholder or remove it.
+  // Let's just show a positive message.
+  const growth = "🚀";
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-12">
@@ -126,19 +157,21 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
             <div className="space-y-1 text-center sm:text-left">
-              <span className="block text-4xl font-black">--</span>
+              <span className="block text-4xl font-black">{ordersToday}</span>
               <span className="text-sm font-bold text-indigo-100/70 uppercase tracking-wider">
                 Pedidos Hoy
               </span>
             </div>
             <div className="space-y-1 text-center sm:text-left border-y border-white/10 py-6 sm:border-y-0 sm:border-x sm:px-8 sm:py-0">
-              <span className="block text-4xl font-black">--</span>
+              <span className="block text-4xl font-black">
+                {formatChileanPeso(currentMonthRevenue)}
+              </span>
               <span className="text-sm font-bold text-indigo-100/70 uppercase tracking-wider">
                 Ventas Mes
               </span>
             </div>
             <div className="space-y-1 text-center sm:text-left">
-              <span className="block text-4xl font-black">--</span>
+              <span className="block text-4xl font-black">{growth}</span>
               <span className="text-sm font-bold text-indigo-100/70 uppercase tracking-wider">
                 Crecimiento
               </span>

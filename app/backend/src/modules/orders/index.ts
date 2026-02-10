@@ -4,6 +4,7 @@ import { InternalServerError, NotFoundError } from "../../utils/error.js";
 import {
   errorMessage,
   ORDER_ARE_NOT_AVAILABLE,
+  ORDER_NOT_FOUND,
 } from "../../utils/error_enum.js";
 import {
   CreateOrderInput,
@@ -14,6 +15,8 @@ import {
   OrderGetAvailableInput,
   orderGetByIdDto,
   OrderGetByIdInput,
+  OrderStatusUpdateInput,
+  orderStatusUpdateDto,
   OrderUpdateInput,
 } from "./orders.schema.js";
 import { OrderService } from "./orders.service.js";
@@ -76,6 +79,29 @@ export async function ordersRoutes(fastify: FastifyInstance) {
       throw new InternalServerError("failed to update order");
     }
   });
+
+  fastify.patch(
+    "/:id/status",
+    { schema: orderStatusUpdateDto },
+    async (request, reply) => {
+      const body = request.body as OrderStatusUpdateInput;
+      try {
+        const updated = await orderService.updateStatus(
+          body.orderId,
+          body.status,
+        );
+        if (!updated) {
+          throw new NotFoundError(errorMessage[ORDER_NOT_FOUND]);
+        }
+        return { order: updated };
+      } catch (error) {
+        if (error instanceof NotFoundError) {
+          throw error;
+        }
+        throw new InternalServerError("failed to update order status");
+      }
+    },
+  );
 
   fastify.delete("/:id", { schema: orderDeleteDto }, async (request, reply) => {
     const id = request.params as OrderDeleteInput;

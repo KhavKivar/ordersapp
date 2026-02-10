@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { fastify } from "./app.js";
 
 const port = Number(process.env.PORT || 3000);

@@ -9,6 +9,10 @@ import {
   getOrders,
   type OrderListItem,
 } from "@/features/orders/api/get-orders";
+import {
+  type OrderStatus,
+  updateOrderStatus,
+} from "@/features/orders/api/update-order-status";
 import OrderCard from "@/features/orders/components/OrderCard";
 
 export default function OrdersListPage() {
@@ -36,11 +40,27 @@ export default function OrdersListPage() {
     },
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: (payload: { orderId: number; status: OrderStatus }) =>
+      updateOrderStatus(payload.orderId, payload.status),
+    onSuccess: () => {
+      toast.success("Estado actualizado");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError: () => {
+      toast.error("Error al actualizar estado");
+    },
+  });
+
   const handleDelete = (order: OrderListItem) => {
     if (deleteMutation.isPending) {
       return;
     }
     deleteMutation.mutate({ orderId: order.orderId, order });
+  };
+
+  const handleStatusChange = (orderId: number, newStatus: OrderStatus) => {
+    updateStatusMutation.mutate({ orderId, status: newStatus });
   };
 
   return (
@@ -110,7 +130,7 @@ export default function OrdersListPage() {
                 key={order.orderId}
                 id={order.orderId}
                 localName={order.localName ?? "Cliente Local"}
-                status="pending"
+                status={order.status}
                 createdAt={order.createdAt}
                 items={order.lines.map((item) => ({
                   name: item.productName ?? "Producto",
@@ -120,6 +140,7 @@ export default function OrdersListPage() {
                 }))}
                 onEdit={(orderId) => navigate(`/order/${orderId}/edit`)}
                 onDelete={() => handleDelete(order)}
+                onStatusChange={handleStatusChange}
                 isSelected={false}
               />
             ))}

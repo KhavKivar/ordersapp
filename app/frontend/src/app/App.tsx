@@ -14,33 +14,39 @@ import PurchaseOrderSelectPage from "./purchase-order/new/select/page";
 import PurchaseOrderSummaryPage from "./purchase-order/new/summary/page";
 import PurchaseOrderListPage from "./purchase-order/page";
 import StatsPage from "./stats/page";
+import LoginPage from "./login/page";
+import { AuthGuard } from "@/features/auth/components/AuthGuard";
 
 const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/stats" element={<StatsPage />} />
-          <Route path="/order" element={<OrderListPage />} />
-          <Route path="/order/new" element={<OrderCreatePage />} />
-          <Route path="/order/:id/edit" element={<OrderEditPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
-          <Route path="/client" element={<ClientListPage />} />
-          <Route path="/client/new" element={<ClientCreatePage />} />
-          <Route path="/purchase-order" element={<PurchaseOrderListPage />} />
-          <Route
-            path="/purchase-order/:id"
-            element={<PurchaseOrderDetailPage />}
-          />
-          <Route
-            path="/purchase-order/new"
-            element={<PurchaseOrderNewLayout />}
-          >
-            <Route index element={<Navigate to="select" replace />} />
-            <Route path="select" element={<PurchaseOrderSelectPage />} />
-            <Route path="summary" element={<PurchaseOrderSummaryPage />} />
+        <Route element={<AuthGuard />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/stats" element={<StatsPage />} />
+            <Route path="/order" element={<OrderListPage />} />
+            <Route path="/order/new" element={<OrderCreatePage />} />
+            <Route path="/order/:id/edit" element={<OrderEditPage />} />
+
+            <Route path="/client" element={<ClientListPage />} />
+            <Route path="/client/new" element={<ClientCreatePage />} />
+            <Route path="/purchase-order" element={<PurchaseOrderListPage />} />
+            <Route
+              path="/purchase-order/:id"
+              element={<PurchaseOrderDetailPage />}
+            />
+            <Route
+              path="/purchase-order/new"
+              element={<PurchaseOrderNewLayout />}
+            >
+              <Route index element={<Navigate to="select" replace />} />
+              <Route path="select" element={<PurchaseOrderSelectPage />} />
+              <Route path="summary" element={<PurchaseOrderSummaryPage />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

@@ -1,4 +1,5 @@
-import API_BASE_URL from "@/config/api";
+import httpClient from "@/lib/api-provider";
+
 export type OrderLine = {
   lineId: number;
   productId: number;
@@ -16,6 +17,7 @@ export type OrderListItem = {
   localName: string | null;
   phone: string | null;
   lines: OrderLine[];
+  status: "pending" | "paid" | "delivered" | "delivered_paid" | "cancelled";
 };
 
 export type OrdersResponse = {
@@ -23,12 +25,9 @@ export type OrdersResponse = {
 };
 
 export const getOrders = async (): Promise<OrdersResponse> => {
-  const res = await fetch(`${API_BASE_URL}/orders`);
+  const res = await httpClient.get("/orders");
 
-  if (!res.ok) {
-    throw new Error("Error cargando pedidos");
-  }
-  const data: OrdersResponse = await res.json();
+  const data: OrdersResponse = res.data;
 
   const ordersList = data.orders.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
