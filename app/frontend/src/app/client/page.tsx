@@ -2,6 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
+  Check,
+  ChevronsUpDown,
   Loader2,
   MapPin,
   PencilLine,
@@ -10,6 +12,7 @@ import {
   Store,
   Trash2,
   Users,
+  X,
 } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -18,6 +21,14 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button/button";
 import { Card } from "@/components/ui/Card/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   Dialog,
   DialogClose,
@@ -30,6 +41,11 @@ import {
 } from "@/components/ui/dialog";
 import FormField from "@/components/ui/Form/form_field";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import type { Client } from "@/features/client/api/client.schema";
 import { deleteClient } from "@/features/client/api/delete-client";
 import { getClients } from "@/features/client/api/get-clients";
@@ -38,12 +54,15 @@ import {
   UpdateClientDtoSchema,
   type UpdateClientDto,
 } from "@/features/client/api/update-client";
+import { cn } from "@/lib/utils";
 
 export default function ClientsAllPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isEditOpen, setEditOpen] = useState(false);
+  const [isFilterOpen, setFilterOpen] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState("");
   const { data, isPending, error } = useQuery({
     queryKey: ["clients", "all"],
     queryFn: getClients,
@@ -136,13 +155,30 @@ export default function ClientsAllPage() {
   };
 
   const clients = useMemo(() => data?.clients ?? [], [data]);
+  const filteredClients = useMemo(() => {
+    const selectedClientExists = clients.some(
+      (client) => String(client.id) === selectedClientId,
+    );
+    const activeClientId = selectedClientExists ? selectedClientId : "";
+
+    if (!activeClientId) {
+      return clients;
+    }
+
+    return clients.filter((client) => String(client.id) === activeClientId);
+  }, [clients, selectedClientId]);
+  const activeClient = useMemo(
+    () => clients.find((client) => String(client.id) === selectedClientId),
+    [clients, selectedClientId],
+  );
+  const activeClientId = activeClient ? selectedClientId : "";
   const hasClients = clients.length > 0;
 
   const [visibleCount, setVisibleCount] = useState(10);
   const CLIENTS_PER_PAGE = 10;
 
-  const visibleClients = clients.slice(0, visibleCount);
-  const hasMore = visibleCount < clients.length;
+  const visibleClients = filteredClients.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredClients.length;
 
   const loadMoreRef = useCallback(
     (node: HTMLElement | null) => {
@@ -152,7 +188,7 @@ export default function ClientsAllPage() {
         (entries) => {
           if (entries[0].isIntersecting && hasMore) {
             setVisibleCount((prev) =>
-              Math.min(prev + CLIENTS_PER_PAGE, clients.length),
+              Math.min(prev + CLIENTS_PER_PAGE, filteredClients.length),
             );
           }
         },
@@ -163,7 +199,7 @@ export default function ClientsAllPage() {
 
       return () => observer.disconnect();
     },
-    [hasMore, clients.length],
+    [hasMore, filteredClients.length],
   );
 
   return (
@@ -185,14 +221,86 @@ export default function ClientsAllPage() {
             </div>
           </div>
 
-          <Button
-            variant="primary"
-            onClick={() => navigate("/client/new")}
-            className="group h-12 w-full rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-200 transition-all hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] sm:h-11 sm:w-auto sm:px-8"
-          >
-            <Plus className="mr-2 size-5 transition-transform group-hover:rotate-90" />
-            Nuevo Cliente
-          </Button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+            <Button
+              variant="primary"
+              onClick={() => navigate("/client/new")}
+              className="group h-12 w-full rounded-md bg-slate-900 text-white shadow-xl shadow-slate-200 transition-all hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] sm:h-11 sm:w-auto sm:px-8"
+            >
+              <Plus className="mr-2 size-5 transition-transform group-hover:rotate-90" />
+              Nuevo Cliente
+            </Button>
+
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+              <Popover open={isFilterOpen} onOpenChange={setFilterOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={isFilterOpen}
+                    className="h-12 w-full justify-between bg-white sm:h-11 sm:w-[260px]"
+                  >
+                    <span className="truncate">
+                      {activeClientId
+                        ? (activeClient?.localName ?? "Filtrar cliente...")
+                        : "Filtrar cliente..."}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-[calc(100vw-32px)] max-w-4xl p-0 sm:w-[var(--radix-popover-trigger-width)]"
+                  align="start"
+                  sideOffset={4}
+                >
+                  <Command>
+                    <CommandInput placeholder="Filtrar por nombre..." />
+                    <CommandList>
+                      <CommandEmpty>No se encontraron resultados.</CommandEmpty>
+                      <CommandGroup>
+                        {clients.map((client) => (
+                          <CommandItem
+                            key={client.id}
+                            value={client.localName}
+                            onSelect={() => {
+                              const stringClientId = String(client.id);
+                              setSelectedClientId(
+                                stringClientId === activeClientId
+                                  ? ""
+                                  : stringClientId,
+                              );
+                              setFilterOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                activeClientId === String(client.id)
+                                  ? "opacity-100"
+                                  : "opacity-0",
+                              )}
+                            />
+                            {client.localName}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+
+              {activeClientId && (
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedClientId("")}
+                  className="w-full border-slate-300 bg-white text-slate-700 hover:bg-slate-50 sm:w-auto"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Limpiar
+                </Button>
+              )}
+            </div>
+          </div>
         </header>
 
         {/* CONTENIDO PRINCIPAL */}

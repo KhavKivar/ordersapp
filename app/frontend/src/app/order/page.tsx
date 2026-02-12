@@ -1,7 +1,10 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ShoppingBag } from "lucide-react";
+import { Plus, ShoppingBag, ChevronsUpDown, Check, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import { useState, useMemo } from "react";
 
 import { Button } from "@/components/ui/Button/button";
 import { deleteOrder } from "@/features/orders/api/delete-order";
@@ -15,15 +18,43 @@ import {
 } from "@/features/orders/api/update-order-status";
 import OrderCard from "@/features/orders/components/OrderCard";
 
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
 export default function OrdersListPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // UI State
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(""); // This stores the stringified orderId
+
+  // Data Fetching
   const { data, isPending, error } = useQuery({
     queryKey: ["orders"],
     queryFn: getOrders,
   });
 
+  // Filter Logic: Only show the selected order if a value exists
+  const filteredOrders = useMemo(() => {
+    if (!value || !data?.orders) return data?.orders ?? [];
+    return data.orders.filter((order) => String(order.orderId) === value);
+  }, [data, value]);
+
+  // Mutations
   const deleteMutation = useMutation({
     mutationFn: (payload: { orderId: number; order: OrderListItem }) =>
       deleteOrder(payload.orderId),
@@ -53,9 +84,7 @@ export default function OrdersListPage() {
   });
 
   const handleDelete = (order: OrderListItem) => {
-    if (deleteMutation.isPending) {
-      return;
-    }
+    if (deleteMutation.isPending) return;
     deleteMutation.mutate({ orderId: order.orderId, order });
   };
 
@@ -82,14 +111,82 @@ export default function OrdersListPage() {
             </div>
           </div>
 
-          <Button
-            variant="primary"
-            onClick={() => navigate("/order/new")}
-            className="group h-12 w-full rounded-2xl bg-slate-900 text-white shadow-xl shadow-slate-200 transition-all hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98] sm:h-11 sm:w-auto sm:px-8"
-          >
-            <Plus className="mr-2 size-5 transition-transform group-hover:rotate-90" />
-            Nuevo Pedido
-          </Button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+            <Button
+              onClick={() => navigate("/order/new")}
+              className="group h-10 w-full rounded-md bg-slate-900 text-white shadow-lg transition-all hover:bg-slate-800 sm:w-auto"
+            >
+              <Plus className="mr-2 size-4 transition-transform group-hover:rotate-90" />
+              Nuevo Pedido
+            </Button>
+
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="h-12 w-full justify-between border-slate-200 bg-white shadow-none sm:h-11 sm:w-[240px]"
+                  >
+                    <span className="truncate">
+                      {value && data?.orders
+                        ? (data.orders.find((f) => String(f.orderId) === value)
+                            ?.localName ?? `Pedido #${value}`)
+                        : "Filtrar pedido..."}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-[calc(100vw-32px)] max-w-4xl p-0 sm:w-[var(--radix-popover-trigger-width)]"
+                  align="start"
+                  sideOffset={4}
+                >
+                  <Command>
+                    <CommandInput placeholder="Filtrar por nombre..." />
+                    <CommandList>
+                      <CommandEmpty>No se encontraron resultados.</CommandEmpty>
+                      <CommandGroup>
+                        {data?.orders.map((order) => (
+                          <CommandItem
+                            key={order.orderId}
+                            value={order.localName ?? `Pedido ${order.orderId}`}
+                            onSelect={() => {
+                              const strId = String(order.orderId);
+                              setValue(strId === value ? "" : strId);
+                              setOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                value === String(order.orderId)
+                                  ? "opacity-100"
+                                  : "opacity-0",
+                              )}
+                            />
+                            {order.localName ?? `Pedido #${order.orderId}`}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+
+              {value && (
+                <Button
+                  variant="outline"
+                  onClick={() => setValue("")}
+                  className="w-full border-slate-200 bg-white text-slate-700 shadow-none hover:bg-slate-50 sm:w-auto"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Limpiar
+                </Button>
+              )}
+            </div>
+          </div>
         </header>
 
         {/* FEEDBACK STATES */}
@@ -115,17 +212,13 @@ export default function OrdersListPage() {
               <ShoppingBag className="size-8" />
             </div>
             <h3 className="text-xl font-bold text-slate-900">No hay pedidos</h3>
-            <p className="mt-2 text-slate-500 font-medium max-w-xs mx-auto">
-              Aún no has registrado ningún pedido. Pulsa el botón de arriba para
-              comenzar.
-            </p>
           </div>
         )}
 
         {/* LIST SECTION */}
         <section className="space-y-4">
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
-            {data?.orders.map((order) => (
+            {filteredOrders?.map((order) => (
               <OrderCard
                 key={order.orderId}
                 id={order.orderId}
@@ -141,7 +234,7 @@ export default function OrdersListPage() {
                 onEdit={(orderId) => navigate(`/order/${orderId}/edit`)}
                 onDelete={() => handleDelete(order)}
                 onStatusChange={handleStatusChange}
-                isSelected={false}
+                isSelected={value === String(order.orderId)}
               />
             ))}
           </div>

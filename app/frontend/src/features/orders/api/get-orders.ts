@@ -14,7 +14,7 @@ export type OrderListItem = {
   orderId: number;
   purchaseOrderId: number | null;
   createdAt: string;
-  localName: string | null;
+  localName: string | undefined;
   phone: string | null;
   lines: OrderLine[];
   status: "pending" | "paid" | "delivered" | "delivered_paid" | "cancelled";
