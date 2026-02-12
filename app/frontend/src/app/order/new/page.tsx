@@ -257,7 +257,7 @@ export default function OrdersPage() {
                       type="hidden"
                       {...register("clientId", { valueAsNumber: true })}
                     />
-                    <DialogContent className="fixed inset-0 z-50 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2.5rem] sm:border sm:shadow-2xl overflow-hidden">
+                    <DialogContent className="lg:max-w-4xl lg:h-10/12 fixed inset-0 z-50 flex h-full w-full  max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2.5rem] sm:border sm:shadow-2xl overflow-hidden">
                       <DialogHeader className="bg-slate-900 p-8 text-white">
                         <DialogTitle className="text-2xl font-black">
                           Seleccionar Cliente
@@ -269,13 +269,12 @@ export default function OrdersPage() {
                       <div className="flex-1 overflow-hidden p-0 sm:p-4">
                         <Command className="flex h-full flex-col border-0">
                           <div className="flex items-center border-b border-slate-100 px-3">
-                            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                             <CommandInput
                               placeholder="Filtrar por nombre..."
                               className="h-12 border-0 focus:ring-0"
                             />
                           </div>
-                          <CommandList className="flex-1 max-h-none sm:max-h-[300px] py-2">
+                          <CommandList className="flex-1 max-h-none  py-2">
                             <CommandEmpty className="py-6 text-center text-sm font-medium text-slate-400">
                               No se encontraron clientes.
                             </CommandEmpty>
@@ -367,19 +366,19 @@ export default function OrdersPage() {
                         </button>
                       </DialogTrigger>
                       <input type="hidden" {...register("item")} />
-                      <DialogContent className="fixed inset-0 z-50 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2.5rem] sm:border sm:shadow-2xl overflow-hidden">
+                      <DialogContent className="lg:max-w-4xl lg:h-10/12 fixed inset-0 z-50 flex h-full w-full max-w-none translate-x-0 translate-y-0 flex-col border-0 bg-white p-0 transition-all sm:left-[50%] sm:top-[50%] sm:h-auto sm:max-w-lg sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-[2.5rem] sm:border sm:shadow-2xl overflow-hidden">
                         <DialogHeader className="bg-slate-900 p-8 text-white">
                           <DialogTitle className="text-2xl font-black">
                             Catálogo de Productos
                           </DialogTitle>
                         </DialogHeader>
-                        <div className="flex-1 overflow-hidden p-0 sm:p-4">
-                          <Command className="flex h-full flex-col border-0">
+                        <div className="flex-1 overflow-hidden p-0 sm:p-4 lg:h-full">
+                          <Command className="flex h-full flex-col border-0 ">
                             <CommandInput
-                              placeholder="Buscar por nombre o SKU..."
+                              placeholder="Buscar por nombre"
                               className="h-12 border-0"
                             />
-                            <CommandList className="flex-1 max-h-none sm:max-h-[300px] py-2">
+                            <CommandList className="flex-1 max-h-none lg:h-full py-2 ">
                               <CommandEmpty className="py-6 text-center text-sm font-medium text-slate-400">
                                 No hay resultados.
                               </CommandEmpty>
