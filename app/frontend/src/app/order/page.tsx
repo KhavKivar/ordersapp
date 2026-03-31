@@ -11,6 +11,7 @@ import { deleteOrder } from "@/features/orders/api/delete-order";
 import {
   getOrders,
   type OrderListItem,
+  type OrdersResponse,
 } from "@/features/orders/api/get-orders";
 import {
   type OrderStatus,
@@ -43,7 +44,7 @@ export default function OrdersListPage() {
   const [value, setValue] = useState(""); // This stores the stringified orderId
 
   // Data Fetching
-  const { data, isPending, error } = useQuery({
+  const { data, isPending, error } = useQuery<OrdersResponse>({
     queryKey: ["orders"],
     queryFn: getOrders,
   });
@@ -127,7 +128,7 @@ export default function OrdersListPage() {
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="h-12 w-full justify-between border-slate-200 bg-white shadow-none sm:h-11 sm:w-[240px]"
+                    className="h-10 w-full justify-between border-slate-200 bg-white shadow-none sm:w-[240px]"
                   >
                     <span className="truncate">
                       {value && data?.orders
